@@ -4,3 +4,7 @@
 .bg-landing{background-color: #031380;}
 .bg-button{background-color: #27AE60;}
 .color-button{color: #FEFEFE;}
+
+*{
+    font-family: 'Rubik', Courier, monospace;
+}
