@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "daisyui";
 
 .bg-primary{background-color: #FAFAFA;}
 .bg-landing{background-color: #031380;}
