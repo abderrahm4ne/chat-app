@@ -1,4 +1,5 @@
 export type User = {
+    _id: string,
     fullName: string,
     email: string,
     password: string,
@@ -11,6 +12,7 @@ export type Message = {
     text?: string,
     image?: string
 }
+
 
 export type AuthResponse = {
   _id: string
