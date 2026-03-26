@@ -4,6 +4,9 @@ import LandingPage from "./features/landing/LandingPage"
 import RegisterPage from "./features/auth/RegisterPage"
 import LoginPage from "./features/auth/LoginPage"
 
+import { store } from "./store/store"
+import { Provider } from "react-redux"
+
 function App() {
 
   const router = createBrowserRouter(
@@ -35,7 +38,7 @@ function App() {
   )
 
 
-  return <RouterProvider router={router} />
+  return <Provider store={store}><RouterProvider router={router} /></Provider>
 }
 
 export default App

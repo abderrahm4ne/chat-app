@@ -6,7 +6,6 @@ import { useNavigate } from 'react-router-dom'
 import google from '../../assets/googl.png'
 import facebook from '../../assets/facebook.png'
 
-
 type FormState = {
     fullName: string
     email: string
@@ -31,9 +30,9 @@ function LoginPage() {
     }
 
   return (
-    <div className="relative flex flex-row items-center bg-primary min-w-[95vw] min-h-[90vh] rounded-xl px-6 py-3" style={{boxShadow: "0 1px 3px darkgreen"}}>
+    <div className="relative flex flex-row items-center bg-primary min-w-[95vw] min-h-[90vh] rounded-xl px-6 py-8 " style={{boxShadow: "0 1px 3px darkgreen"}}>
         { /* LEFT SIDE */}
-        <div className="flex flex-col w-[50%] px-10 mr-auto">
+        <div className="flex flex-col w-[50%] px-10 mr-auto ">
 
             { /* LOGO */}
             <div className="flex space-x-3 items-center mb-14">
@@ -58,7 +57,7 @@ function LoginPage() {
             
             <div className='mb-5 w-[67%] self-center'>
                 <SubmitButton loading={loading} onClick={handleSubmit} >
-                    SIGN UP
+                    LOG IN
                 </SubmitButton>
             </div>
             
@@ -74,18 +73,20 @@ function LoginPage() {
             </div>
 
             <div className='flex space-x-8 items-center self-center'>
-                <img src={google} alt="google" className='w-10 h-10 p-1 hover:cursor-pointer transition-all duration-200 hover:scale-[1.02]'/>
-                <img src={facebook} alt="facebook" className='w-10 h-10 p-1 hover:cursor-pointer transition-all duration-200 hover:scale-[1.02]' />
+                <img src={google} alt="google" className='w-10 h-10 p-1 hover:cursor-pointer transition-all duration-200 hover:scale-[1.1]'/>
+                <img src={facebook} alt="facebook" className='w-10 h-10 p-1 hover:cursor-pointer transition-all duration-200 hover:scale-[1.1]' />
             </div>
 
         </div>
         
-        <div className=' absolute left-1/2 -translate-x-1/2' />
+        <div className='border-0 border-r border-black absolute left-1/2 -translate-x-1/2 h-[70vh]' />
 
         { /* RIGHT SIDE */}
-        <div className='grid grid-cols-4 grid-rows-5 ml-auto'>
-            sf
-        </div>
+            <div className='grid grid-cols-4 grid-rows-5 ml-auto'>
+                {[...Array(20)].map((_, i) => (
+                    <div key={i} className="skeleton h-32 w-32"></div>
+                ))}
+            </div>
     </div>
   )
 }

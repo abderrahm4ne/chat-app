@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom'
 import google from '../../assets/googl.png'
 import facebook from '../../assets/facebook.png'
 
+import formDataMiddleware from '../../components/ui/formDataMiddleware'
 
 type FormState = {
     fullName: string
@@ -27,13 +28,16 @@ function RegisterPage() {
     const navigate = useNavigate()
 
     const handleSubmit = () => {
+        setLoading(true)
+        if(formDataMiddleware(formData)) return 
 
+        
     }
 
   return (
-    <div className="flex flex-row bg-primary min-w-[95vw] min-h-[90vh] rounded-xl px-6 py-3" style={{boxShadow: "0 1px 3px darkgreen"}}>
+    <div className="flex flex-row items-center bg-primary min-w-[95vw] min-h-[90vh] rounded-xl px-6 py-8x" style={{boxShadow: "0 1px 3px darkgreen"}}>
         { /* LEFT SIDE */}
-        <div className="flex flex-col  w-[50%] place-self-center px-10">
+        <div className="flex flex-col w-[50%] px-10">
 
             { /* LOGO */}
             <div className="flex space-x-3 items-center mb-14">
@@ -78,15 +82,17 @@ function RegisterPage() {
             </div>
 
             <div className='flex space-x-8 items-center self-center'>
-                <img src={google} alt="google" className='w-10 h-10 p-1 hover:cursor-pointer transition-all duration-200 hover:scale-[1.02]'/>
-                <img src={facebook} alt="facebook" className='w-10 h-10 p-1 hover:cursor-pointer transition-all duration-200 hover:scale-[1.02]' />
+                <img src={google} alt="google" className='w-10 h-10 p-1 hover:cursor-pointer transition-all duration-200 hover:scale-[1.1]'/>
+                <img src={facebook} alt="facebook" className='w-10 h-10 p-1 hover:cursor-pointer transition-all duration-200 hover:scale-[1.1]' />
             </div>
 
         </div>
+
+        <div className='border-0 border-r border-black absolute left-1/2 -translate-x-1/2 h-[70vh]' />
         
 
         { /* RIGHT SIDE */}
-        <div className='grid grid-cols-4 grid-rows-5'>
+        <div className='grid grid-cols-4 grid-rows-5 ml-auto'>
             
         </div>
     </div>
