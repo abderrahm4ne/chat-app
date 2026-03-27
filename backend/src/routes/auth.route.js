@@ -16,7 +16,7 @@ router.post('/signup', async (req, res) => {
         if(!fullName || !email || !password){
             return res.status(400).json({ message: "All fields are requireds"})
         }
-        if( password.length < 7){
+        if( password.length <= 7){
             return res.status(400).json({ message: "password must be 8 chars at least"})
         }
 
@@ -58,7 +58,7 @@ router.post("/login", async (req, res) => {
         const user = await User.findOne({ email });
 
         if (!user) {
-        return res.status(400).json({ message: "Invalid credentials" });
+            return res.status(400).json({ message: "Invalid credentials" });
         }
 
         const isPasswordCorrect = await bcrypt.compare(password, user.password);
@@ -104,7 +104,7 @@ router.put('/setup-profile', protectedRoute, async (req, res) => {
       userId,
       { profilePic: uploadResponse.secure_url },
       { new: true }
-    ).select("_id profilePic")
+    ).select("-password")
 
     res.status(200).json(profile);
   } catch (error) {

@@ -6,27 +6,46 @@ import { useNavigate } from 'react-router-dom'
 import google from '../../assets/googl.png'
 import facebook from '../../assets/facebook.png'
 
+//
+import { useLoginMutation } from '../../store/api/authApi'
+import formDataMiddleware from '../../components/ui/formDataMiddleware'
+
 type FormState = {
-    fullName: string
     email: string
     password: string
 }
 
 function LoginPage() {
+    const [login, { isLoading }] = useLoginMutation()
     const [formData, setFormData] = useState({
-        fullName: "",
         email: "",
         password: ""
     })
-    const [loading, setLoading] = useState(false)
+    const [error, setError] = useState<string | null>(null)
+    const navigate = useNavigate()
     
     const set = (key: keyof FormState) => (v: string) => {
         setFormData(f => ({ ...f, [key]: v }));
     };
-    const navigate = useNavigate()
 
-    const handleSubmit = () => {
-
+    const handleSubmit = async () => {
+        setError(null)
+        try{
+            formDataMiddleware(formData)
+            await login(formData).unwrap()
+            navigate('/chat')
+        }
+        catch (error: any){
+            if (error.data && error.data.message) {
+                setError(error.data.message);
+            } 
+            else if (error.message) {
+                setError(error.message);
+            } 
+            else {
+                setError("An unknown error occurred. Check Network tab.");
+            }
+        }
     }
 
   return (
@@ -49,14 +68,20 @@ function LoginPage() {
                 </h1>
             </div>
 
+            {error && (
+                <p className='text-red-500 text-sm text-center mb-3'>
+                    {error}
+                </p>
+            )}
+
             {/* Fields */}
             <div className='flex flex-col items-center self-center w-[67%] space-y-4 mb-10'>
                 <InputField name='email' placeholder='Email' value={formData.email} onChange={set('email')}/>
-                <InputField name='password' placeholder='Password' value={formData.password} onChange={set('password')}/>
+                <InputField name='password' type='password' placeholder='Password' value={formData.password} onChange={set('password')}/>
             </div>
             
             <div className='mb-5 w-[67%] self-center'>
-                <SubmitButton loading={loading} onClick={handleSubmit} >
+                <SubmitButton loading={isLoading} onClick={handleSubmit} >
                     LOG IN
                 </SubmitButton>
             </div>
