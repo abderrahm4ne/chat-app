@@ -104,7 +104,7 @@ router.put('/setup-profile', protectedRoute, async (req, res) => {
       userId,
       { profilePic: uploadResponse.secure_url },
       { new: true }
-    );
+    ).select("_id profilePic")
 
     res.status(200).json(profile);
   } catch (error) {
@@ -113,28 +113,5 @@ router.put('/setup-profile', protectedRoute, async (req, res) => {
   }
 })
 
-
-router.put('/setup-profile', protectedRoute, async (req, res) => {
-  try {
-    const { profilePic } = req.body;
-    const userId = req.user._id;
-
-    if (!profilePic) {
-      return res.status(400).json({ message: "Profile pic is required" });
-    }
-
-    const uploadResponse = await cloudinary.uploader.upload(profilePic);
-    const profile = await User.findByIdAndUpdate(
-      userId,
-      { profilePic: uploadResponse.secure_url },
-      { new: true }
-    );
-
-    res.status(200).json(profile);
-  } catch (error) {
-    console.log("error in setuping profile:", error);
-    res.status(500).json({ message: "Internal server error" });
-  }
-})
 
 export default router;

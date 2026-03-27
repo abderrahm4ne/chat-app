@@ -7,10 +7,12 @@ export type User = {
 }
 
 export type Message = {
+    _id: string,
     senderId: string,
     recieverId: string,
     text?: string,
-    image?: string
+    image?: string,
+    createdAt: string,
 }
 
 
