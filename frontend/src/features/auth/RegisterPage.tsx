@@ -6,7 +6,9 @@ import { useNavigate } from 'react-router-dom'
 import google from '../../assets/googl.png'
 import facebook from '../../assets/facebook.png'
 
-import formDataMiddleware from '../../components/ui/formDataMiddleware'
+import { useRegisterMutation } from '../../store/api/authApi'
+import registerMiddleware from '../../components/middleware/registerMiddleware'
+
 
 type FormState = {
     fullName: string
@@ -20,17 +22,28 @@ function RegisterPage() {
         email: "",
         password: ""
     })
-    const [loading, setLoading] = useState(false)
-    
+    const [register, { isLoading }] = useRegisterMutation()
+    const [ error, setError ] = useState<string| null>(null)
+
     const set = (key: keyof FormState) => (v: string) => {
         setFormData(f => ({ ...f, [key]: v }));
     };
     const navigate = useNavigate()
 
-    const handleSubmit = () => {
-        setLoading(true)
-        if(formDataMiddleware(formData)) return 
-
+    const handleSubmit = async () => {
+        setError(null)
+        try {
+            registerMiddleware(formData)
+            await register(formData).unwrap()
+            navigate('/setup-profile')
+        } catch (error: any) {
+            if(error.message){
+                setError(error.message)
+            }
+            else {
+                setError("An unknown error occurred. Check Network tab.")
+            }
+        }
         
     }
 
@@ -65,7 +78,7 @@ function RegisterPage() {
             </div>
             
             <div className='mb-5 w-[67%] self-center'>
-                <SubmitButton loading={loading} onClick={handleSubmit} >
+                <SubmitButton loading={isLoading} onClick={handleSubmit} >
                     SIGN UP
                 </SubmitButton>
             </div>

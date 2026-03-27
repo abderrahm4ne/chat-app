@@ -8,7 +8,7 @@ import facebook from '../../assets/facebook.png'
 
 //
 import { useLoginMutation } from '../../store/api/authApi'
-import formDataMiddleware from '../../components/ui/formDataMiddleware'
+import LoginMiddleware from '../../components/middleware/loginMiddleware.ts'
 
 type FormState = {
     email: string
@@ -31,15 +31,12 @@ function LoginPage() {
     const handleSubmit = async () => {
         setError(null)
         try{
-            formDataMiddleware(formData)
+            LoginMiddleware(formData)
             await login(formData).unwrap()
             navigate('/chat')
         }
         catch (error: any){
-            if (error.data && error.data.message) {
-                setError(error.data.message);
-            } 
-            else if (error.message) {
+            if (error.message) {
                 setError(error.message);
             } 
             else {

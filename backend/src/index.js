@@ -20,6 +20,7 @@ app.use(cors({
 
 app.get('/health-check', (req, res) => {
     console.log('pulsing..')
+    res.status(200).json({ status: 'ok'})
 })
 
 app.use('/api/auth', authRoutes)

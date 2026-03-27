@@ -20,7 +20,7 @@ const authSlice = createSlice({
       state.user = null
       state.isAuthenticated = false
     },
-  },
+  },  
   extraReducers: (builder) => {
     builder
       .addMatcher(authApi.endpoints.register.matchFulfilled, (state, action) => {
