@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-Oswald / Iosevka Charon Mono / Rubik
+Oswald / Iosevka Charon Mono / Rubik / Syne
 
 *{
     font-family: 'Rubik', Courier, monospace;
@@ -25,7 +25,8 @@ Oswald / Iosevka Charon Mono / Rubik
     --color-secondary-text: #9E9E9E;
     --color-dark-body-text: #4A4A4A;
 
-    --font-text-landing-title: 'Rubik', sans-serif;
+    --font-text-landing-title: 'Syne', sans-serif;
+    --font-text-rubik : 'Rubik', monospace;
     --font-text-card: 'Oswald', 'Rubik', sans-serif;
     --font-text-description: 'Archivo Black', 'Rubik', sans-serif;
 }
