@@ -1,8 +1,11 @@
 @import "tailwindcss";
 
+Oswald / Iosevka Charon Mono / Rubik
+
 *{
     font-family: 'Rubik', Courier, monospace;
 }
+
 
 @theme {
     --color-primary: #F2F2F2;
@@ -10,12 +13,19 @@
     --color-sidebar-background: #3A3A3A;
     --color-input-field-background: #E0E0E0;
     --color-card-background: rgba(58, 58, 58, 1);
+    --color-chat-background: #F2F2F2;
+    --color-border-color: #3A3A3A;
 
     --color-button-background: #E8432D;
+    --color-button-hover-background: #E31D02;
 
     --color-green: #4CAF50;
 
     --color-primary-text: #1A1A1A;
     --color-secondary-text: #9E9E9E;
     --color-dark-body-text: #4A4A4A;
+
+    --font-text-landing-title: 'Rubik', sans-serif;
+    --font-text-card: 'Oswald', 'Rubik', sans-serif;
+    --font-text-description: 'Archivo Black', 'Rubik', sans-serif;
 }
