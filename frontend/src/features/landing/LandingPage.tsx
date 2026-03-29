@@ -1,6 +1,8 @@
 import { useNavigate } from 'react-router-dom'
 import landingData from '../../components/data/landingData';
 import type { Message } from '../../components/data/landingData';
+import { Upload, Send } from 'lucide-react';
+
 
 function LandingPage() {
     const navigate = useNavigate();
@@ -9,12 +11,12 @@ function LandingPage() {
     <div className="flex items-center justify-center h-screen w-screen px-4">
 
         {/* left side */}
-        <div className='bg-linear-to-b from-primary to-secondary rounded-xl p-10 shadow-lg shadow-gray-400/50 flex flex-col items-start h-[80%] w-xl'>
+        <div className='bg-linear-to-b from-primary to-secondary rounded-xl p-10 shadow-lg shadow-gray-400/50 flex flex-col items-start h-[80%] w-[30%]'>
 
             {/* title + BETA tag */}
-            <div className='mt-10'>
+            <div className='mt-20'>
                 {/* title */}
-                <div className='mb-4     font-text-landing-title'>
+                <div className='mb-4 font-text-landing-title'>
                     <h1 className='text-4xl'>
                         <span className='text-dark-body-text'>Qwik</span>
                         <span className='text-primary-text'>Chat</span>
@@ -29,9 +31,9 @@ function LandingPage() {
             </div>
 
             {/* Description + BUTTONS */}
-            <div className='flex flex-col space-y-4 my-auto'>
+            <div className='flex flex-col space-y-4 mt-6'>
                 <h2 className='text-primary-text text-4xl font-text-landing-title'>Fast Chatting with Friends,</h2>
-                <h3 className='text-dark-body-text text-lg w-[73%]'>Real-time messaging built for speed. End-to-End encrypted</h3>
+                <h3 className='text-dark-body-text text-lg w-[73%] font-'>Real-time messaging built for speed. End-to-End encrypted</h3>
 
                 <div className='flex flex-row space-x-5 pt-2'>
                     <button
@@ -68,7 +70,7 @@ function LandingPage() {
         </div>
 
         { /* right side */}
-        <div className='h-[80%] flex flex-col rounded-2xl px-6 py-4 ml-10 w-[25%] items-center bg-primary shadow-lg shadow-gray-400/50'>
+        <div className='h-[80%] flex flex-col rounded-2xl px-6 py-4 ml-10 w-[21%] items-center bg-primary shadow-lg shadow-gray-400/90 -skew-y-1 '>
             
             { /* USER */}
             <div className='flex flex-row space-x-3 mb-4 self-start px-4 '>
@@ -105,9 +107,16 @@ function LandingPage() {
             { /* send message or image fields */}
             <div className='flex flex-row items-center w-full space-x-1'>
 
-                <div className='bg-input-field-background text-primary-text placeholder:text-secondary-text outline-none px-2 py-2 border border-primary rounded-md text-md w-full'><h2>Type your message...</h2></div>
-                <div className='bg-secondary text-black px-3.5 py-2 rounded-md hover:cursor-pointer'><h2>+</h2></div>
-                <div className='bg-secondary text-black px-3.5 py-2 rounded-md hover:cursor-pointer'><h2>SEND</h2></div>
+                <input 
+                    placeholder='Type your message...'
+                    className='bg-input-field-background text-primary-text placeholder:text-secondary-text outline-none px-3.5 py-2.5 border border-card-background rounded-lg text-sm w-full'
+                />
+                <div 
+                    className='bg-secondary text-black px-3.5 py-2 rounded-md hover:cursor-pointer border border-card-background'><Upload /></div>
+                <div 
+                    className='bg-secondary text-black px-3.5 py-2 rounded-md hover:cursor-pointer border border-card-background'>
+                        <Send />
+                </div>
                 
             </div>
         </div>

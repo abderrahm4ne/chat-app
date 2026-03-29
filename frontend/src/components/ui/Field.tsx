@@ -26,9 +26,9 @@ function InputField({ name, type = "text", placeholder, value, onChange}: InputF
           value={value}
           onChange={e => onChange(e.target.value)}
           className={[
-            "w-full border-0 border-b ",
+            "w-full border-0 border-b text-primary-text",
             "py-3 transition-all duration-200 outline-none",
-            "focus:border-green-600 ",
+            "focus:border-button-background focus:ring-0 ",
             isPassword ? "pr-11" : "",  
           ].join(" ")}
         />
@@ -36,7 +36,7 @@ function InputField({ name, type = "text", placeholder, value, onChange}: InputF
           <button
             type="button"
             onClick={() => setShowPw(s => !s)}
-            className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors text-md hover:cursor-pointer"
+            className="absolute right-3.5 top-1/2 -translate-y-1/2 text-black hover:text-black/40 transition-colors text-md hover:cursor-pointer"
             aria-label={showPw ? "Hide password" : "Show password"}
           >
             {showPw ? "HIDE" : "👁"}

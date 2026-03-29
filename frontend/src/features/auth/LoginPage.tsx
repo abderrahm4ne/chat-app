@@ -1,12 +1,9 @@
-import logo from '../../assets/logo.png'
 import InputField from '../../components/ui/Field'
 import { useState } from 'react'
 import SubmitButton from '../../components/ui/Button'
 import { useNavigate } from 'react-router-dom'
 import google from '../../assets/googl.png'
 import facebook from '../../assets/facebook.png'
-
-//
 import { useLoginMutation } from '../../store/api/authApi'
 import LoginMiddleware from '../../components/middleware/loginMiddleware.ts'
 
@@ -17,100 +14,105 @@ type FormState = {
 
 function LoginPage() {
     const [login, { isLoading }] = useLoginMutation()
-    const [formData, setFormData] = useState({
-        email: "",
-        password: ""
-    })
+    const [formData, setFormData] = useState({ email: "", password: "" })
     const [error, setError] = useState<string | null>(null)
     const navigate = useNavigate()
-    
+
     const set = (key: keyof FormState) => (v: string) => {
-        setFormData(f => ({ ...f, [key]: v }));
-    };
+        setFormData(f => ({ ...f, [key]: v }))
+    }
 
     const handleSubmit = async () => {
         setError(null)
-        try{
+        try {
             LoginMiddleware(formData)
             await login(formData).unwrap()
             navigate('/chat')
-        }
-        catch (error: any){
-            if (error.message) {
-                setError(error.message);
-            } 
-            else {
-                setError("An unknown error occurred. Check Network tab.");
-            }
+        } catch (error: any) {
+            setError(error.message || "An unknown error occurred. Check Network tab.")
         }
     }
 
-  return (
-    <div className="relative flex flex-row items-center bg-primary min-w-[95vw] min-h-[90vh] rounded-xl px-6 py-8 " style={{boxShadow: "0 1px 3px darkgreen"}}>
-        { /* LEFT SIDE */}
-        <div className="flex flex-col w-[50%] px-10 mr-auto ">
+    return (
+        <div className="flex items-center justify-center h-screen w-screen px-4">
+            <div className="bg-linear-to-b from-primary to-secondary rounded-xl shadow-lg shadow-gray-400/50 flex flex-row h-[80%] w-[65%] overflow-hidden">
 
-            { /* LOGO */}
-            <div className="flex space-x-3 items-center mb-14">
-                <img src={logo} alt="logo" className='w-12 h-12' />
-                <h1 className="font-bold md:text-3xl sm:text-md">
-                    QwikChat
-                </h1>
-            </div>
+                {/* left side*/}
+                <div className="flex flex-col w-[42%] p-10 justify-center mb-20">
 
-            { /* */}
-            <div className='flex flex-col place-self-center mb-7'>
-                <h1 className='md:text-3xl text-xl font-semibold text-center'>
-                    Continue to your Account
-                </h1>
-            </div>
+                    {/* title */}
+                    <div className='mb-6'>
+                        <h1 className="text-4xl font-text-landing-title">
+                            <span className="text-dark-body-text">Qwik</span>
+                            <span className="text-primary-text">Chat</span>
+                        </h1>
+                    </div>
 
-            {error && (
-                <p className='text-red-500 text-sm text-center mb-3'>
-                    {error}
-                </p>
-            )}
+                    {/* center text */}
+                    <div className="flex flex-col space-y-3">
+                        <h2 className="text-4xl font-text-landing-title text-primary-text leading-tight">
+                            Welcome back,
+                        </h2>
+                        <p className="text-dark-body-text text-lg w-[80%]">
+                            Real-time messaging built for speed. End-to-End encrypted.
+                        </p>
+                    </div>
 
-            {/* Fields */}
-            <div className='flex flex-col items-center self-center w-[67%] space-y-4 mb-10'>
-                <InputField name='email' placeholder='Email' value={formData.email} onChange={set('email')}/>
-                <InputField name='password' type='password' placeholder='Password' value={formData.password} onChange={set('password')}/>
-            </div>
-            
-            <div className='mb-5 w-[67%] self-center'>
-                <SubmitButton loading={isLoading} onClick={handleSubmit} >
-                    LOG IN
-                </SubmitButton>
-            </div>
-            
 
-            <div className='place-self-center mb-7'>
-                <h2>Don't have an Account? <span className='font-semibold text-[#27AE60] hover:cursor-pointer hover:text-lime-500' onClick={() => navigate('/register')}>Sign up</span></h2>
-            </div>
-            
-            <div className='flex items-center space-x-4 self-center w-[60%] mb-4'>
-                <div className='border-0 border-b border-b-lime-600 w-full'/>
-                <h2 className='self-center text-nowrap'>or Login with</h2>
-                <div className='border-0 border-b border-b-lime-600 w-full'/>
-            </div>
+                </div>
 
-            <div className='flex space-x-8 items-center self-center'>
-                <img src={google} alt="google" className='w-10 h-10 p-1 hover:cursor-pointer transition-all duration-200 hover:scale-[1.1]'/>
-                <img src={facebook} alt="facebook" className='w-10 h-10 p-1 hover:cursor-pointer transition-all duration-200 hover:scale-[1.1]' />
-            </div>
+                {/* DIVIDER */}
+                <div className="border border-card-background/60 h-[80%] self-center" />
 
+                {/* right side */}
+                <div className="flex flex-col justify-center w-[58%] px-12 py-10">
+
+                    <h1 className="text-3xl font-text-landing-title text-dark-body-text mb-1">
+                        Log in
+                    </h1>
+                    <p className="text-dark-body-text/60 text-sm mb-8">
+                        Enter your credentials to continue
+                    </p>
+
+                    {error && (
+                        <p className="text-red-500 text-sm mb-4">{error}</p>
+                    )}
+
+                    <div className="flex flex-col space-y-4 mb-6">
+                        <InputField name="email" placeholder="Email" value={formData.email} onChange={set('email')} />
+                        <InputField name="password" type="password" placeholder="Password" value={formData.password} onChange={set('password')} />
+                    </div>
+
+                    <div className="mb-5">
+                        <SubmitButton loading={isLoading} onClick={handleSubmit}>
+                            LOG IN
+                        </SubmitButton>
+                    </div>
+
+                    <p className="text-center text-sm text-dark-body-text mb-6">
+                        Don't have an account?{' '}
+                        <span
+                            className="font-semibold text-primary-text hover:cursor-pointer hover:opacity-80 transition-opacity"
+                            onClick={() => navigate('/register')}>
+                            Sign up
+                        </span>
+                    </p>
+
+                    <div className="flex items-center space-x-4 mb-5">
+                        <div className="border-b border-card-background/60 w-full" />
+                        <p className="text-nowrap text-sm text-dark-body-text">or login with</p>
+                        <div className="border-b border-card-background/60 w-full" />
+                    </div>
+
+                    <div className="flex space-x-6 items-center justify-center">
+                        <img src={google} alt="google" className="w-9 h-9 p-1 hover:cursor-pointer transition-all duration-200 hover:scale-110" />
+                        <img src={facebook} alt="facebook" className="w-9 h-9 p-1 hover:cursor-pointer transition-all duration-200 hover:scale-110" />
+                    </div>
+                </div>
+
+            </div>
         </div>
-        
-        <div className='border-0 border-r border-black absolute left-1/2 -translate-x-1/2 h-[70vh]' />
-
-        { /* RIGHT SIDE */}
-            <div className='grid grid-cols-4 grid-rows-5 ml-auto'>
-                {[...Array(20)].map((_, i) => (
-                    <div key={i} className="skeleton h-32 w-32"></div>
-                ))}
-            </div>
-    </div>
-  )
+    )
 }
 
 export default LoginPage
