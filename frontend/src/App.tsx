@@ -3,11 +3,14 @@ import { createBrowserRouter, createRoutesFromElements, Route, RouterProvider } 
 import LandingPage from "./features/landing/LandingPage"
 import RegisterPage from "./features/auth/RegisterPage"
 import LoginPage from "./features/auth/LoginPage"
+import SetupProfilePage from "./features/setup/SetupProfilePage"
+
 
 import { store } from "./store/store"
 import { Provider } from "react-redux"
 
-function App() {
+import { useGetMeQuery } from "./store/api/authApi"
+
 
   const router = createBrowserRouter(
     createRoutesFromElements(
@@ -32,13 +35,24 @@ function App() {
             <LoginPage />
           </div>
           }/>
+        
+        <Route path="setup-profile" element={<SetupProfilePage />} />
+
+
+        <Route path="*" element={<div>404 Not Found</div>} />
 
       </>
     )
   )
 
+function AppProvider() {
+  useGetMeQuery();
+  return <RouterProvider router={router} />
+}
 
-  return <Provider store={store}><RouterProvider router={router} /></Provider>
+function App() {
+
+  return <Provider store={store}><AppProvider /></Provider>
 }
 
 export default App

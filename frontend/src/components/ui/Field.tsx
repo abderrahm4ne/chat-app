@@ -7,9 +7,10 @@ interface InputFieldProps {
   value: string;
   onChange: (v: string) => void;
   required?: boolean;
+  disabled?: boolean;
 }
 
-function InputField({ name, type = "text", placeholder, value, onChange}: InputFieldProps) {
+function InputField({ name, type = "text", placeholder, value, onChange, disabled}: InputFieldProps) {
   const id = useId();
   const [showPw, setShowPw] = useState(false);
   const isPassword = type === "password";
@@ -24,6 +25,7 @@ function InputField({ name, type = "text", placeholder, value, onChange}: InputF
           type={inputType}
           placeholder={placeholder}
           value={value}
+          disabled={disabled}
           onChange={e => onChange(e.target.value)}
           className={[
             "w-full border-0 border-b text-primary-text",

@@ -1,5 +1,5 @@
 
-function SubmitButton({ loading, children, onClick }: { loading: boolean; children: React.ReactNode; onClick?: () => void }) {
+function SubmitButton({ loading, children, onClick }: { loading?: boolean; children: React.ReactNode; onClick?: () => void }) {
   return (
     <button
       type="button"

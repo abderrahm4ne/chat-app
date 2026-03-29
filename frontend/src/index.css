@@ -30,3 +30,16 @@ Oswald / Iosevka Charon Mono / Rubik / Syne
     --font-text-card: 'Oswald', 'Rubik', sans-serif;
     --font-text-description: 'Archivo Black', 'Rubik', sans-serif;
 }
+
+.animate-spin {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg)
+    }
+    to {
+        transoform: rotate(360deg)
+    }
+}
