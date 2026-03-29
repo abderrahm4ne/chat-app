@@ -3,9 +3,7 @@ import User from '../models/user.model.js'
 import bcrypt from 'bcryptjs'
 import { generateToken } from '../utils/token.js'
 import { protectedRoute } from '../middleware/message.middleware.js'
-import { v2 as cloudinary } from 'cloudinary'
-
-
+import cloudinary from '../lib/cloudinary.js'
 
 const router = express.Router()
 
@@ -50,7 +48,6 @@ router.post('/signup', async (req, res) => {
         res.status(500).json({ message: "Internal Server Error" });
     }
 })
-
 
 router.post("/login", async (req, res) => {
     const { email, password } = req.body;
@@ -98,8 +95,8 @@ router.put('/setup-profile', protectedRoute, async (req, res) => {
     if (!profilePic) {
       return res.status(400).json({ message: "Profile pic is required" });
     }
-
-    const uploadResponse = await cloudinary.uploader.upload(profilePic);
+    console.log('cloudinary wait')
+    const uploadResponse = await cloudinary.uploader.upload(profilePic, { folder: 'qwikchat-avatar'});
     const profile = await User.findByIdAndUpdate(
       userId,
       { profilePic: uploadResponse.secure_url },
@@ -113,5 +110,14 @@ router.put('/setup-profile', protectedRoute, async (req, res) => {
   }
 })
 
+router.get('/me', protectedRoute, async (req, res) => {
+   try {
+    res.status(200).json(req.user);
+   } catch (error) {
+    console.log("error in getting user:", error);
+    res.status(500).json({ message: "Internal server error" });
+    
+   }
+})
 
 export default router;
