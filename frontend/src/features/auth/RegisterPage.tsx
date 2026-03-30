@@ -1,4 +1,3 @@
-import logo from '../../assets/logo.png'
 import InputField from '../../components/ui/Field'
 import { useState } from 'react'
 import SubmitButton from '../../components/ui/Button'
@@ -7,6 +6,11 @@ import google from '../../assets/googl.png'
 import facebook from '../../assets/facebook.png'
 import { useRegisterMutation } from '../../store/api/authApi'
 import registerMiddleware from '../../components/middleware/registerMiddleware'
+
+import toast from 'react-hot-toast'
+const toastStyle = {
+    className: 'text-xl font-semibold'
+}
 
 type FormState = {
     fullName: string
@@ -29,8 +33,10 @@ function RegisterPage() {
         try {
             registerMiddleware(formData)
             await register(formData).unwrap()
+            toast('Registration successful!', toastStyle)
             navigate('/setup-profile')
         } catch (error: any) {
+            toast.error('Registration failed!', toastStyle)
             setError(error.message || "An unknown error occurred. Check Network tab.")
         }
     }

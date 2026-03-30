@@ -5,6 +5,7 @@ import RegisterPage from "./features/auth/RegisterPage"
 import LoginPage from "./features/auth/LoginPage"
 import SetupProfilePage from "./features/setup/SetupProfilePage"
 
+import { Toaster } from "react-hot-toast"
 
 import { store } from "./store/store"
 import { Provider } from "react-redux"
@@ -52,7 +53,14 @@ function AppProvider() {
 
 function App() {
 
-  return <Provider store={store}><AppProvider /></Provider>
+  return (
+    <>
+      <Toaster />
+      <Provider store={store}>
+        <AppProvider />
+      </Provider>
+    </>
+)
 }
 
 export default App

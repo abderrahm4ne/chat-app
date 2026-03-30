@@ -8,8 +8,12 @@ import type { RootState } from '../../store/store'
 
 // lucide-react
 import { LoaderCircle } from 'lucide-react';
+const toastStyle = {
+    className: 'text-xl font-semibold'
+}
 
 import { useGetMeQuery, useSetupProfileMutation } from '../../store/api/authApi'
+import toast from 'react-hot-toast'
 
 function SetupProfilePage() {
     const navigate = useNavigate()
@@ -21,10 +25,11 @@ function SetupProfilePage() {
 
     const [preview, setPreview] = useState<string | null>(null)
     const fileInputRef = useRef<HTMLInputElement>(null)
+    const [originalImage, setOriginalImage] = useState<string | null>(user?.profilePic || null)
 
     useEffect(() => {
         setPreview(user?.profilePic || null);
-    
+        setOriginalImage(user?.profilePic || null)
     }, [user?.profilePic])
 
 
@@ -35,19 +40,25 @@ function SetupProfilePage() {
             const reader = new FileReader();
             reader.onloadend = () => setPreview(reader.result as string);
             reader.readAsDataURL(file);
-            
+            toast('Image uploaded successfully!', toastStyle)
         }
     }
 
     const handleSave = async () => {
         try {
+            if(preview === originalImage) {
+                toast('No changes to save!', toastStyle);
+                return;
+            }
             await setupProfile({ profilePic: preview }).unwrap();
             setError(null)
+            toast('Profile saved successfully!', toastStyle)
             setTimeout(() => navigate('/chat'), 1300)
         }
         catch (error) {
             setError("Failed to save profile");
             console.error("Error saving profile:", error);
+            toast.error('Failed to save profile!', toastStyle)
         }
     }
 
@@ -89,7 +100,7 @@ function SetupProfilePage() {
                         Setup your profile
                     </h1>
                     <p className="text-dark-body-text text-sm mb-10">
-                        You can't change this later
+                        Complete this step so your friends find you.
                     </p>
 
                     {/* avatar upload */}

@@ -7,6 +7,11 @@ import facebook from '../../assets/facebook.png'
 import { useLoginMutation } from '../../store/api/authApi'
 import LoginMiddleware from '../../components/middleware/loginMiddleware.ts'
 
+import toast from 'react-hot-toast'
+const toastStyle = {
+    className: 'text-xl font-semibold'
+}
+
 type FormState = {
     email: string
     password: string
@@ -27,8 +32,10 @@ function LoginPage() {
         try {
             LoginMiddleware(formData)
             await login(formData).unwrap()
+            toast('Login successful!', toastStyle)
             navigate('/chat')
         } catch (error: any) {
+            toast.error('Login failed!', toastStyle)
             setError(error.message || "An unknown error occurred. Check Network tab.")
         }
     }
