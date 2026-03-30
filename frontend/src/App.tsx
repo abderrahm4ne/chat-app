@@ -4,6 +4,7 @@ import LandingPage from "./features/landing/LandingPage"
 import RegisterPage from "./features/auth/RegisterPage"
 import LoginPage from "./features/auth/LoginPage"
 import SetupProfilePage from "./features/setup/SetupProfilePage"
+import ChatPage from "./features/chat/ChatPage"
 
 import { Toaster } from "react-hot-toast"
 
@@ -38,6 +39,8 @@ import { useGetMeQuery } from "./store/api/authApi"
           }/>
         
         <Route path="setup-profile" element={<SetupProfilePage />} />
+
+        <Route path="chat" element={<ChatPage />} />
 
 
         <Route path="*" element={<div>404 Not Found</div>} />

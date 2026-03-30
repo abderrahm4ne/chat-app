@@ -48,6 +48,7 @@ function SetupProfilePage() {
         try {
             if(preview === originalImage) {
                 toast('No changes to save!', toastStyle);
+                navigate('/chat');
                 return;
             }
             await setupProfile({ profilePic: preview }).unwrap();
