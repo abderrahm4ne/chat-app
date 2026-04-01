@@ -35,8 +35,8 @@ router.post("/send/:id", protectedRoute, async (req, res) => {
 
         let imageUrl;
         if (image) {
-        const uploadResponse = await cloudinary.uploader.upload(image);
-        imageUrl = uploadResponse.secure_url;
+            const uploadResponse = await cloudinary.uploader.upload(image);
+            imageUrl = uploadResponse.secure_url;
         }
 
         const newMessage = new Message({
@@ -50,7 +50,7 @@ router.post("/send/:id", protectedRoute, async (req, res) => {
         res.status(201).json(newMessage);
     }
     catch (error) {
-        console.log("Errm.mior in sendMessage controller: ", error.message);
+        console.log("Errm.mior in sendMessage controller: ", error.message, req.params._id, req.user._id);
         res.status(500).json({ error: "Internal server error" });
     }
 });

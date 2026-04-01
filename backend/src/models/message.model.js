@@ -5,7 +5,7 @@ const messageSchema = new mongoose.Schema({
             type: mongoose.Schema.Types.ObjectId,
             required: true
         },
-        receiverID:{
+        receiverId:{
             type: mongoose.Schema.Types.ObjectId,
             required: true
         },

@@ -13,9 +13,9 @@ export const messageApi = createApi({
       query: (userId) => `/${userId}`,
     }),
 
-    sendMessage: builder.mutation<Message, { userId: string; text?: string; image?: string }>({
-      query: ({ userId, ...body }) => ({
-        url: `/send/${userId}`,
+    sendMessage: builder.mutation<Message, { receiverId: string; text?: string; image?: string }>({
+      query: ({ receiverId, ...body }) => ({
+        url: `/send/${receiverId}`,
         method: 'POST',
         body,
       }),
