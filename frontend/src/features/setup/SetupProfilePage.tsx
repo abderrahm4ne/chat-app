@@ -38,9 +38,11 @@ function SetupProfilePage() {
         const file = e.target.files?.[0]
         if (file) {
             const reader = new FileReader();
-            reader.onloadend = () => setPreview(reader.result as string);
+            reader.onloadend = () => {
+                setPreview(reader.result as string)
+                toast.success('Image uploaded successfully!', toastStyle)
+            }
             reader.readAsDataURL(file);
-            toast('Image uploaded successfully!', toastStyle)
         }
     }
 

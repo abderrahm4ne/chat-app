@@ -1,8 +1,14 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { Search, MoreVertical, LoaderCircle, MoreHorizontal, Upload, Send } from 'lucide-react'
 import { useGetUsersQuery } from '../../store/api/userApi'
 import type { AuthResponse, Message } from '../../../types/types'
+
 import toast from 'react-hot-toast'
+const toastStyle = {
+    className: 'text-xl font-semibold'
+}
+
+import { useSendMessageMutation, useGetMessagesQuery } from '../../store/api/messageApi'
 
 const exampleUsers: AuthResponse[] = [
     { _id: '1', email: 'john.doe@qwik.io', fullName: 'John Doe', profilePic: 'a'},
@@ -28,21 +34,34 @@ function ChatPage() {
     const [search, setSearch] = useState<string>('')
     const [selectedUser, setSelectedUser] = useState<AuthResponse>(selectedExampleUser)
     const [messages, setMessage] = useState<Message[] | null>(null)
+    const [file, setFile] = useState<string | null>(null)
     const [input, setInput] = useState<string>('')
+    const fileInputRef = useRef<HTMLInputElement>(null)
 
 
     // functions
+    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files.length === 1) {
+            const reader = new FileReader()
+            reader.onloadend = () => {
+                setFile(reader.result as string)
+                toast.success('Image selected', toastStyle)
+            }
+            reader.readAsDataURL(e.target.files[0])
+        }
+        handleSendPicture();
+    }
+
     const handleSendMessage = () => {
         if(!input.trim()) {
             toast.error('Message cannot be empty')
         }
-        exampleMessages.push({
-            _id: Math.random().toString(),
-            senderId: '1',
-            recieverId: selectedUser._id,
-            text: input.trim(),
-            createdAt: new Date().toISOString()
-        })
+        useSendMessageMutation({ userId: selectedUser._id, text: input.trim() })
+
+    }
+
+    const handleSendPicture = () => {
+        useSendMessageMutation({ userId: selectedUser._id, image: file})
     }
 
 
@@ -83,7 +102,7 @@ function ChatPage() {
                     <div className="flex flex-col overflow-y-auto flex-1 space-y-1  p-1">
                         {isLoading ? <div className='self-center'>
                             <LoaderCircle size={30} className='animate-spin'/>
-                        </div> : exampleUsers?.map((user: AuthResponse) => (
+                        </div> : displayUsers?.map((user: AuthResponse) => (
                             <div
                             key={user._id}
                             onClick={() => setSelectedUser(user)}
@@ -124,12 +143,8 @@ function ChatPage() {
 
                             {/* chat header */}
                             <div className="flex items-center gap-3">
-                                <div className="relative">
-                                    <div className="w-13 h-13 rounded-full bg-card-background flex items-center justify-center text-white text-sm font-semibold">
-                                        {selectedUser?.profilePic}
-                                    </div>
+                                <img src={selectedUser?.profilePic} className="w-13 h-13 rounded-full bg-card-background flex items-center justify-center text-white text-sm font-semibold text-center" alt="pic" />
                                     
-                                </div>
                                 <div className="flex flex-col">
                                     <span className="text-md font-semibold text-primary-text">{selectedUser?.fullName}</span>
                                 </div>
@@ -155,9 +170,16 @@ function ChatPage() {
 
                     {/* input bar */}
                     <div className="flex items-center gap-2 px-6 py-4 border-t border-card-background/30">
-                        <button className="p-2 rounded-lg bg-card-background/30 hover:bg-card-background/50 transition-colors cursor-pointer border border-card-background/30">
+                        <button className="p-2 rounded-lg bg-card-background/30 hover:bg-card-background/50 transition-colors cursor-pointer border border-card-background/30" onClick={() => fileInputRef.current?.click()}>
                             <Upload size={18} className="text-dark-body-text/60" />
                         </button>
+                        <input
+                            ref={fileInputRef}
+                            type='file'
+                            className='hidden'
+                            onChange={handleImageChange}
+                        />
+
                         <input
                             value={input}
                             onChange={e => setInput(e.target.value)}
