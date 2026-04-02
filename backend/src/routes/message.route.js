@@ -45,6 +45,7 @@ router.post("/send/:id", protectedRoute, async (req, res) => {
         text,
         image: imageUrl,
         });
+        console.log(newMessage)
 
         await newMessage.save();
         res.status(201).json(newMessage);

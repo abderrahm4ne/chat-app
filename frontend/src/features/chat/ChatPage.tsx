@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { Search, MoreVertical, LoaderCircle, MoreHorizontal, Upload, Send } from 'lucide-react'
 import { useGetUsersQuery } from '../../store/api/userApi'
 import type { AuthResponse } from '../../../types/types'
@@ -17,7 +17,13 @@ const exampleUsers: AuthResponse[] = [
 ]
 
 const dateFormatter = (date: string) => {
-    return new Date(date).toDateString() + ' ' + new Date(date).toLocaleTimeString()
+    console.log(date)
+    if(!date) return 'No Date'
+    const d = new Date(date)
+    if (isNaN(d.getTime())) {
+        return 'Invalid Date'
+    }
+    return d.toLocaleDateString() + ' ' + d.toLocaleTimeString()
 }
 
 function ChatPage() {
@@ -27,12 +33,17 @@ function ChatPage() {
     const displayUsers = users ?? exampleUsers
     const [search, setSearch] = useState<string>('')
     const [selectedUser, setSelectedUser] = useState<AuthResponse | null>(null)
-    const [file, setFile] = useState<string | null>(null)
     const [input, setInput] = useState<string>('')
     const fileInputRef = useRef<HTMLInputElement>(null)
 
     const [sendMessage] = useSendMessageMutation()
     const { data: messages } = useGetMessagesQuery(selectedUser?._id ?? '', { skip: !selectedUser})
+
+    const messageEndRef = useRef<HTMLDivElement>(null)
+
+    useEffect(() => {
+        messageEndRef.current?.scrollIntoView({ behavior: 'smooth'})
+    }, [messages])
 
     const filteredUsers = displayUsers.filter(u =>
         u.fullName.toLowerCase().includes(search.toLowerCase())
@@ -44,7 +55,6 @@ function ChatPage() {
             const reader = new FileReader()
             reader.onloadend = () => {
                 const dataUrl = reader.result as string
-                setFile(dataUrl)
                 toast.success('Image selected', toastStyle)
                 sendMessage({ receiverId: selectedUser?._id, image: dataUrl })
             }
@@ -66,8 +76,10 @@ function ChatPage() {
         if (e.key === 'Enter') handleSendMessage()
     }
 
+    
+
     return (
-        <div className='flex items-center justify-center h-screen w-screen px-4'>
+        <div className='flex items-center justify-center h-screen w-screen px-4 bg-linear-to-br from-bg to-bg2'>
             <div className="flex w-[90%] h-[90%] bg-secondary overflow-hidden rounded-xl shadow-lg shadow-black/50">
 
                 {/* SIDEBAR */}
@@ -108,7 +120,7 @@ function ChatPage() {
                         ) : filteredUsers.map((user: AuthResponse) => (
                             <div
                                 key={user._id}
-                                onClick={() => setSelectedUser(user)}
+                                onClick={() => setSelectedUser(() => selectedUser?._id === user?._id ? null : user)}
                                 className={`flex items-center gap-3 px-3 py-3 rounded-xl cursor-pointer transition-all duration-150 text-primary-text/80 hover:text-primary-text font-text-rubik ${
                                     selectedUser?._id === user._id
                                         ? 'bg-button-background/20 border border-button-background/30'
@@ -129,7 +141,7 @@ function ChatPage() {
                 <div className='border border-card-background h-full self-center' />
 
                 {/* MAIN CHAT */}
-                <div className='w-full py-4 px-2 flex flex-col'>
+                <div className='w-full flex flex-col px-1 space-y-0.5 '>
 
                     {/* selected user section */}
                     {selectedUser && (
@@ -145,29 +157,34 @@ function ChatPage() {
                     )}
 
                     {/* Messages Chat*/}
-                    <div className="flex flex-col flex-1 overflow-y-auto px-6 py-4 space-y-2.5">
+                    {selectedUser &&
+                    (<div className={`flex flex-col flex-1 overflow-y-auto px-6 py-4 space-y-2`}>
                         {messages?.map(msg => (
                             <div key={msg._id} className={`flex flex-col max-w-[60%] ${msg.senderId === authUser?._id ? 'self-end items-end' : 'self-start items-start'}`}>
-                                <div className={`px-4 py-2 rounded-2xl text-md text-white ${
+                                <div className={`${msg.text ? 'px-4 py-2 ': ' '} rounded-lg text-lg text-white ${
                                     msg.senderId === authUser?._id
                                         ? 'bg-button-background rounded-br-sm'
                                         : 'bg-card-background rounded-bl-sm'
                                 }`}>
                                     {msg.text}
-                                    {msg.image && <img src={msg.image} alt="img" className="mt-2 rounded-lg max-w-50" />}
+                                    {msg.image && <img src={msg.image} alt="img" className=" rounded-lg max-w-140" />}
                                 </div>
-                                <span className="text-[0.65rem] text-dark-body-text/60 mt-1 px-1">{dateFormatter(msg.createdAt)}</span>
+                                <span className="text-[0.65rem] text-dark-body-text/80 mt-1 px-1">{msg?.createdAt && dateFormatter(msg.createdAt)}</span>
                             </div>
                         ))}
-                    </div>
+                        <div ref={messageEndRef}/>
+                    </div>)
+                    }
 
                     {/* input bar */}
-                    <div className="flex items-center gap-2 px-6 py-4 border-t border-card-background/30">
+                    {selectedUser && 
+                    (<div className="flex items-center gap-2 px-6 py-4 border-t border-card-background/30 h-20">
                         <button
-                            className="p-2 rounded-lg bg-card-background/30 hover:bg-card-background/50 transition-colors cursor-pointer border border-card-background/30"
+                            className="px-5 py-3 rounded-lg bg-input-field-background/60 hover:bg-input-field-background transition-all cursor-pointer border border-card-background/30
+                            active:scale-[1.04]"
                             onClick={() => fileInputRef.current?.click()}
                         >
-                            <Upload size={18} className="text-dark-body-text/60" />
+                            <Upload size={20} className="text-dark-body-text/60" />
                         </button>
                         <input
                             ref={fileInputRef}
@@ -180,15 +197,15 @@ function ChatPage() {
                             onChange={e => setInput(e.target.value)}
                             onKeyDown={handleKeyDown}
                             placeholder="Type a message..."
-                            className="flex-1 bg-card-background/20 border border-card-background/30 rounded-lg px-4 py-2.5 text-sm text-dark-body-text placeholder:text-dark-body-text/40 outline-none"
+                            className="flex-1 bg-input-field-background/60 border border-card-background/30 rounded-lg px-4 py-2.5 text-lg text-dark-body-text placeholder:text-dark-body-text/40 outline-none h-full"
                         />
                         <button
                             onClick={handleSendMessage}
-                            className="p-2.5 rounded-lg bg-button-background hover:bg-button-hover-background transition-colors cursor-pointer"
+                            className="py-3 px-5 rounded-lg bg-button-background hover:bg-button-hover-background transition-all cursor-pointer active:scale-[1.04] "
                         >
-                            <Send size={18} className="text-white" />
+                            <Send size={20} className="text-white" />
                         </button>
-                    </div>
+                    </div>)}
                 </div>
             </div>
         </div>

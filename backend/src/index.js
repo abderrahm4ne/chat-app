@@ -2,6 +2,9 @@ import dotenv from 'dotenv'
 dotenv.config()
 
 import express from 'express'
+import { Server } from 'socket.io'
+import { createServer } from 'http'
+
 import cookieParser from 'cookie-parser'
 import cors from 'cors'
 import connectDB from './lib/mongoose.js'
@@ -12,6 +15,26 @@ import userRoutes from './routes/user.route.js'
 const PORT = process.env.PORT
 
 const app = express();
+const httpServer = createServer(app);
+const io = new Server(httpServer, {
+    cors: { origin: 'http://localhost:5173', credentials: true }
+})
+
+const userSocketMap = {};
+
+io.on('connection', socket => {
+    const userId = socket.handshake.query.userId;
+    if(userId) userSocketMap[userId] = socket.id;
+
+    io.emit('getOnlineUsers', Object.keys(userSocketMap))
+
+    socket.on('disconnect', () => {
+        delete userSocketMap[userId]
+        io.emit('getOnlineUsers', Object.keys(userSocketMap))
+    })
+})
+
+
 app.use(express.json())
 app.use(cookieParser())
 app.use(cors({
@@ -28,7 +51,6 @@ app.use('/api/auth', authRoutes)
 app.use('/api/messages', messageRoutes)
 app.use('/api/user', userRoutes)
 
-app.listen(PORT, () => {
-    connectDB()
-    console.log('Server running on PORT: ', PORT)
-})
+httpServer.listen(3001, () => console.log('Server running on PORT: ', process.env.PORT))
+
+export { io, userSocketMap}

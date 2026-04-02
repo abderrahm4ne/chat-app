@@ -6,6 +6,25 @@ Oswald / Iosevka Charon Mono / Rubik / Syne
     font-family: 'Rubik', Courier, monospace;
 }
 
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #3A3A3A;
+  border-radius: 12px;
+}
+::-webkit-scrollbar{
+    background-color: transparent;
+    padding-top: 3px;
+    padding-bottom: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #181818;
+}
 
 @theme {
     --color-primary: #F2F2F2;
@@ -29,6 +48,9 @@ Oswald / Iosevka Charon Mono / Rubik / Syne
     --font-text-rubik : 'Rubik', monospace;
     --font-text-card: 'Oswald', 'Rubik', sans-serif;
     --font-text-description: 'Archivo Black', 'Rubik', sans-serif;
+
+    --color-bg: #280905;
+    --color-bg2: #740A03;
 }
 
 .animate-spin {

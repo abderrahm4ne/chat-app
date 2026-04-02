@@ -7,11 +7,13 @@ export const messageApi = createApi({
     baseUrl: '/api/messages',
     credentials: 'include'
   }),
+  tagTypes: ['Messages'],
   endpoints: (builder) => ({
 
     getMessages: builder.query<Message[], string>({
       query: (userId) => `/${userId}`,
-    }),
+      providesTags: ['Messages']
+    }),  
 
     sendMessage: builder.mutation<Message, { receiverId: string; text?: string; image?: string }>({
       query: ({ receiverId, ...body }) => ({
@@ -19,6 +21,7 @@ export const messageApi = createApi({
         method: 'POST',
         body,
       }),
+      invalidatesTags: ['Messages']
     }),
 
   }),

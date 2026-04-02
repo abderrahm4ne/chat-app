@@ -41,7 +41,7 @@ function LoginPage() {
     }
 
     return (
-        <div className="flex items-center justify-center h-screen w-screen px-4">
+        <div className="flex items-center justify-center h-screen w-screen px-4 bg-linear-to-br from-bg to-bg2">
             <div className="bg-linear-to-b from-primary to-secondary rounded-xl shadow-lg shadow-gray-400/50 flex flex-row h-[80%] w-[65%] overflow-hidden">
 
                 {/* left side*/}

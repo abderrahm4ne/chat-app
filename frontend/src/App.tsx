@@ -18,24 +18,15 @@ import { useGetMeQuery } from "./store/api/authApi"
     createRoutesFromElements(
       <>
         <Route path="" element={
-          <div 
-          className="min-h-screen min-w-screen flex items-center justify-center">
             <LandingPage />
-          </div>
           }/>
 
         <Route path="register" element={
-          <div 
-          className="min-h-screen min-w-screen flex items-center justify-center px-4 py-8 bg-gray-200">
             <RegisterPage />
-          </div>
         }/>
 
         <Route path="login" element={
-          <div 
-          className="min-h-screen min-w-screen flex items-center justify-center px-4 py-8 bg-gray-200">
             <LoginPage />
-          </div>
           }/>
         
         <Route path="setup-profile" element={<SetupProfilePage />} />

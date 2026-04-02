@@ -8,7 +8,7 @@ function LandingPage() {
     const navigate = useNavigate();
 
     return (
-    <div className="flex items-center justify-center h-screen w-screen px-4">
+    <div className="flex items-center justify-center h-screen w-screen px-4 bg-linear-to-br from-bg to-bg2">
 
         {/* left side */}
         <div className='bg-linear-to-b from-primary to-secondary rounded-xl p-10 shadow-lg shadow-gray-400/50 flex flex-col items-start h-[80%] w-auto'>
