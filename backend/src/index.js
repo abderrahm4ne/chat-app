@@ -51,6 +51,6 @@ app.use('/api/auth', authRoutes)
 app.use('/api/messages', messageRoutes)
 app.use('/api/user', userRoutes)
 
-httpServer.listen(3001, () => console.log('Server running on PORT: ', process.env.PORT))
+httpServer.listen(3001, () => { connectDB().then(() => console.log('Server running on PORT: ', process.env.PORT))})
 
 export { io, userSocketMap}
