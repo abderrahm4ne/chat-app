@@ -1,9 +1,9 @@
 import { createSlice } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
-import type { User } from '../../../types/types'
+import type { AuthResponse } from '../../../types/types'
 
 type ChatState = {
-  selectedUser: User | null
+  selectedUser: AuthResponse | null
 }
 
 const initialState: ChatState = {
@@ -14,7 +14,7 @@ const chatSlice = createSlice({
   name: 'chat',
   initialState,
   reducers: {
-    setSelectedUser(state, action: PayloadAction<User | null>) {
+    setSelectedUser(state, action: PayloadAction<AuthResponse | null>) {
       state.selectedUser = action.payload
     },
   },

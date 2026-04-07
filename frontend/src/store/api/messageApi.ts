@@ -12,7 +12,7 @@ export const messageApi = createApi({
 
     getMessages: builder.query<Message[], string>({
       query: (userId) => `/${userId}`,
-      providesTags: ['Messages']
+      providesTags: (result, error, userId) => [{ type: 'Messages', id: userId}]
     }),  
 
     sendMessage: builder.mutation<Message, { receiverId: string; text?: string; image?: string }>({
@@ -21,7 +21,7 @@ export const messageApi = createApi({
         method: 'POST',
         body,
       }),
-      invalidatesTags: ['Messages']
+      invalidatesTags: (result, error, { receiverId }) => [{ type: 'Messages', id: receiverId }]
     }),
 
   }),

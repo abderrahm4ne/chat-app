@@ -4,6 +4,8 @@ import { useGetUsersQuery } from '../../store/api/userApi'
 import type { AuthResponse } from '../../../types/types'
 import { useSelector } from 'react-redux'
 import type { RootState } from '../../store/store'
+import { setSelectedUser } from '../../store/slices/chatSlice'
+import { useDispatch } from 'react-redux'
 
 import toast from 'react-hot-toast'
 const toastStyle = { className: 'text-xl font-semibold' }
@@ -27,14 +29,17 @@ const dateFormatter = (date: string) => {
 }
 
 function ChatPage() {
-    const authUser = useSelector((state: RootState) => (state as { auth: { user: AuthResponse | null } }).auth.user)
+    const dispatch = useDispatch()
+
+    const authUser = useSelector((state: RootState) => (state.auth.user))
+    const selectedUser = useSelector((state: RootState) => (state.chat.selectedUser))
     const { data: users, isLoading } = useGetUsersQuery()
 
     const displayUsers = users ?? exampleUsers
     const [search, setSearch] = useState<string>('')
-    const [selectedUser, setSelectedUser] = useState<AuthResponse | null>(null)
     const [input, setInput] = useState<string>('')
     const fileInputRef = useRef<HTMLInputElement>(null)
+    
 
     const [sendMessage] = useSendMessageMutation()
     const { data: messages } = useGetMessagesQuery(selectedUser?._id ?? '', { skip: !selectedUser})
@@ -120,7 +125,7 @@ function ChatPage() {
                         ) : filteredUsers.map((user: AuthResponse) => (
                             <div
                                 key={user._id}
-                                onClick={() => setSelectedUser(() => selectedUser?._id === user?._id ? null : user)}
+                                onClick={() => dispatch(setSelectedUser(user))}
                                 className={`flex items-center gap-3 px-3 py-3 rounded-xl cursor-pointer transition-all duration-150 text-primary-text/80 hover:text-primary-text font-text-rubik ${
                                     selectedUser?._id === user._id
                                         ? 'bg-button-background/20 border border-button-background/30'
@@ -161,14 +166,13 @@ function ChatPage() {
                     (<div className={`flex flex-col flex-1 overflow-y-auto px-6 py-4 space-y-2`}>
                         {messages?.map(msg => (
                             <div key={msg._id} className={`flex flex-col max-w-[60%] ${msg.senderId === authUser?._id ? 'self-end items-end' : 'self-start items-start'}`}>
-                                <div className={`${msg.text ? 'px-4 py-2 ': ' '} rounded-lg text-lg text-white ${
+                                { msg.text ? (<div className={`${msg.text ? 'px-4 py-2 ': ' '} rounded-lg text-lg text-white ${
                                     msg.senderId === authUser?._id
                                         ? 'bg-button-background rounded-br-sm'
                                         : 'bg-card-background rounded-bl-sm'
                                 }`}>
                                     {msg.text}
-                                    {msg.image && <img src={msg.image} alt="img" className=" rounded-lg max-w-140" />}
-                                </div>
+                                </div>) : (<img src={msg.image} alt='sent-img' className='w-100 h-auto rounded-lg' />)}
                                 <span className="text-[0.65rem] text-dark-body-text/80 mt-1 px-1">{msg?.createdAt && dateFormatter(msg.createdAt)}</span>
                             </div>
                         ))}
