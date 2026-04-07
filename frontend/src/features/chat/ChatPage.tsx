@@ -6,10 +6,13 @@ import { useSelector } from 'react-redux'
 import type { RootState } from '../../store/store'
 import { setSelectedUser } from '../../store/slices/chatSlice'
 import { useDispatch } from 'react-redux'
+import { LogOut } from 'lucide-react';
+import { useNavigate } from 'react-router-dom'
 
 import toast from 'react-hot-toast'
 const toastStyle = { className: 'text-xl font-semibold' }
 
+import { useLogoutMutation } from '../../store/api/authApi'
 import { useSendMessageMutation, useGetMessagesQuery } from '../../store/api/messageApi'
 
 const exampleUsers: AuthResponse[] = [
@@ -29,6 +32,8 @@ const dateFormatter = (date: string) => {
 }
 
 function ChatPage() {
+    const navigate = useNavigate()
+    const [hiddenLogOut, setHiddenLogOut] = useState(true)
     const dispatch = useDispatch()
 
     const authUser = useSelector((state: RootState) => (state.auth.user))
@@ -39,6 +44,8 @@ function ChatPage() {
     const [search, setSearch] = useState<string>('')
     const [input, setInput] = useState<string>('')
     const fileInputRef = useRef<HTMLInputElement>(null)
+
+    const [logout] = useLogoutMutation()
     
 
     const [sendMessage] = useSendMessageMutation()
@@ -77,6 +84,12 @@ function ChatPage() {
         setInput('')
     }
 
+    const handleLogOut = () => {
+        logout()
+        navigate('/')
+        toast.success('Logged out successfully', toastStyle)
+    }
+
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Enter') handleSendMessage()
     }
@@ -93,7 +106,7 @@ function ChatPage() {
                     <div className="mb-4">
 
                         {/* Header */}
-                        <h1 className="text-3xl font-text-landing-title mb-4">
+                        <h1 className="text-3xl font-text-landing-title mb-4 bg-card-background/50 px-3 py-1 rounded-md w-fit">
                             <span className="text-dark-body-text">Qwik</span>
                             <span className="text-primary-text">Chat</span>
                         </h1>
@@ -102,6 +115,21 @@ function ChatPage() {
                             <h2>Connected As : </h2>
                             <h2 className='font-semibold pl-4 pr-2'>{authUser?.fullName}</h2>
                             <div className='w-2.5 h-2.5 bg-linear-to-br from-green-40 to-green-500 rounded-md' />
+                            <div className="ml-auto relative">
+                                <LogOut
+                                    size={19}
+                                    className="hover:cursor-pointer text-primary-text/70 hover:text-primary-text"
+                                    onClick={() => setHiddenLogOut(prev => !prev)}
+                                />
+
+                                <div
+                                    className={`absolute top-6 right-0 w-20 px-2 py-1 items-center justify-center text-md bg-button-background/80 rounded-md hover:bg-button-background hover:cursor-pointer 
+                                    ${hiddenLogOut ? 'hidden' : 'flex'}`}
+                                    onClick={() => {handleLogOut()}}
+                                >
+                                    <h1>Log Out</h1>
+                                </div>
+                            </div>
                         </div>
 
                         {/* Search Bar */}
