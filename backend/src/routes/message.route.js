@@ -3,7 +3,7 @@ import { protectedRoute } from "../middleware/message.middleware.js";
 import Message from '../models/message.model.js'
 import User from "../models/user.model.js";
 import { v2 as cloudinary } from 'cloudinary'
-
+import { userSocketMap, io } from '../index.js'
 
 const router = express.Router();
 
@@ -45,9 +45,12 @@ router.post("/send/:id", protectedRoute, async (req, res) => {
         text,
         image: imageUrl,
         });
-        console.log(newMessage)
+        // console.log(newMessage)
 
         await newMessage.save();
+        const receiverSocketId = userSocketMap[receiverId];
+        if (receiverSocketId) io.to(receiverSocketId).emit('newMessage', newMessage) 
+
         res.status(201).json(newMessage);
     }
     catch (error) {

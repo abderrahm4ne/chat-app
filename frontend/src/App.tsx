@@ -1,4 +1,5 @@
 import { createBrowserRouter, createRoutesFromElements, Route, RouterProvider } from "react-router-dom"
+import { useEffect } from "react"
 
 import LandingPage from "./features/landing/LandingPage"
 import RegisterPage from "./features/auth/RegisterPage"
@@ -10,8 +11,11 @@ import { Toaster } from "react-hot-toast"
 
 import { store } from "./store/store"
 import { Provider } from "react-redux"
+import { useAppDispatch, useAppSelector } from "./store/hooks/hooks"
 
 import { useGetMeQuery } from "./store/api/authApi"
+import { socket } from "./store/socket"
+import { setOnlineUsers } from "./store/slices/chatSlice"
 
 
   const router = createBrowserRouter(
@@ -42,6 +46,28 @@ import { useGetMeQuery } from "./store/api/authApi"
 
 function AppProvider() {
   useGetMeQuery();
+  const dispatch = useAppDispatch();
+  const authUser = useAppSelector((state) => (state.auth.user))
+
+  useEffect(() => {
+    if (authUser) {
+      if (authUser?._id) {
+        socket.io.opts.query = {
+          userId: authUser._id,
+        }
+        socket.connect()
+        
+        socket.on("getOnlineUsers", users => {
+          dispatch(setOnlineUsers(users))
+        })
+      }
+
+      return () => {
+        socket.off("getOnlineUsers")
+        socket.disconnect()
+      }
+    }
+  }, [authUser?._id])
   return <RouterProvider router={router} />
 }
 

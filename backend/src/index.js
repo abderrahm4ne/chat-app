@@ -22,12 +22,14 @@ const io = new Server(httpServer, {
 
 const userSocketMap = {};
 
-io.on('connection', socket => {
+// io connection event listener
+// socket client event listener
+
+io.on('connection', (socket) => {
     const userId = socket.handshake.query.userId;
     if(userId) userSocketMap[userId] = socket.id;
 
     io.emit('getOnlineUsers', Object.keys(userSocketMap))
-
     socket.on('disconnect', () => {
         delete userSocketMap[userId]
         io.emit('getOnlineUsers', Object.keys(userSocketMap))
@@ -51,6 +53,6 @@ app.use('/api/auth', authRoutes)
 app.use('/api/messages', messageRoutes)
 app.use('/api/user', userRoutes)
 
-httpServer.listen(3001, () => { connectDB().then(() => console.log('Server running on PORT: ', process.env.PORT))})
+httpServer.listen(process.env.PORT, () => { connectDB().then(() => console.log('Server running on PORT: ', process.env.PORT))})
 
 export { io, userSocketMap}

@@ -2,10 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import { Search, MoreVertical, LoaderCircle, MoreHorizontal, Upload, Send } from 'lucide-react'
 import { useGetUsersQuery } from '../../store/api/userApi'
 import type { AuthResponse } from '../../../types/types'
-import { useSelector } from 'react-redux'
-import type { RootState } from '../../store/store'
 import { setSelectedUser } from '../../store/slices/chatSlice'
-import { useDispatch } from 'react-redux'
 import { LogOut } from 'lucide-react';
 import { useNavigate } from 'react-router-dom'
 
@@ -14,6 +11,11 @@ const toastStyle = { className: 'text-xl font-semibold' }
 
 import { useLogoutMutation } from '../../store/api/authApi'
 import { useSendMessageMutation, useGetMessagesQuery } from '../../store/api/messageApi'
+import { useAppDispatch, useAppSelector } from '../../store/hooks/hooks'
+
+import { socket } from '../../store/socket'
+import type { Message } from '../../../types/types.ts'
+import { messageApi } from '../../store/api/messageApi'
 
 const exampleUsers: AuthResponse[] = [
     { _id: '1', email: 'john.doe@qwik.io', fullName: 'John Doe', profilePic: 'a'},
@@ -34,10 +36,11 @@ const dateFormatter = (date: string) => {
 function ChatPage() {
     const navigate = useNavigate()
     const [hiddenLogOut, setHiddenLogOut] = useState(true)
-    const dispatch = useDispatch()
+    const dispatch = useAppDispatch()
 
-    const authUser = useSelector((state: RootState) => (state.auth.user))
-    const selectedUser = useSelector((state: RootState) => (state.chat.selectedUser))
+    const authUser = useAppSelector((state) => (state.auth.user))
+    const selectedUser = useAppSelector((state) => (state.chat.selectedUser))
+    const onlineUsers = useAppSelector((state) => (state.chat.onlineUsers))
     const { data: users, isLoading } = useGetUsersQuery()
 
     const displayUsers = users ?? exampleUsers
@@ -94,7 +97,22 @@ function ChatPage() {
         if (e.key === 'Enter') handleSendMessage()
     }
 
-    
+    useEffect(() => {
+        if (!selectedUser) return
+
+        const handleNewMessage = (message: Message) => {
+            if (message.senderId === selectedUser._id) {
+                dispatch(messageApi.util.updateQueryData(
+                    'getMessages',
+                    selectedUser._id,
+                    (draft) => { draft.push(message) }
+                ))
+            }
+        }
+        socket.on('newMessage', handleNewMessage)
+
+        return () => { socket.off('newMessage', handleNewMessage) }
+    }, [selectedUser?._id])
 
     return (
         <div className='flex items-center justify-center h-screen w-screen px-4 bg-linear-to-br from-bg to-bg2'>
@@ -114,7 +132,7 @@ function ChatPage() {
                         <div className='flex items-center mb-4 font-text-rubik '>
                             <h2>Connected As : </h2>
                             <h2 className='font-semibold pl-4 pr-2'>{authUser?.fullName}</h2>
-                            <div className='w-2.5 h-2.5 bg-linear-to-br from-green-40 to-green-500 rounded-md' />
+                            <div className='w-2.5 h-2.5 bg-green-700 rounded-md' />
                             <div className="ml-auto relative">
                                 <LogOut
                                     size={19}
@@ -164,6 +182,7 @@ function ChatPage() {
                                     <img src={user?.profilePic} className='w-11 h-11 object-cover border rounded-full' alt='img'/>
                                 </div>
                                 <h2 className='font-semibold'>{user?.fullName}</h2>
+                                {onlineUsers?.includes(user._id) && <div className="w-2.5 h-2.5 bg-green-700 rounded-md" />}
                                 <MoreHorizontal size={20} className='hover:cursor-pointer text-primary-text/70 hover:text-primary-text ml-auto' />
                             </div>
                         ))}
