@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { Search, MoreVertical, LoaderCircle, MoreHorizontal, Upload, Send } from 'lucide-react'
+import { Search, MoreVertical, LoaderCircle, MoreHorizontal, Upload, Send, MessageCircle } from 'lucide-react'
 import { useGetUsersQuery } from '../../store/api/userApi'
 import type { AuthResponse } from '../../../types/types'
 import { setSelectedUser } from '../../store/slices/chatSlice'
@@ -16,6 +16,7 @@ import { useAppDispatch, useAppSelector } from '../../store/hooks/hooks'
 import { socket } from '../../store/socket'
 import type { Message } from '../../../types/types.ts'
 import { messageApi } from '../../store/api/messageApi'
+import { incrementUnread } from '../../store/slices/chatSlice'
 
 const exampleUsers: AuthResponse[] = [
     { _id: '1', email: 'john.doe@qwik.io', fullName: 'John Doe', profilePic: 'a'},
@@ -41,20 +42,36 @@ function ChatPage() {
     const authUser = useAppSelector((state) => (state.auth.user))
     const selectedUser = useAppSelector((state) => (state.chat.selectedUser))
     const onlineUsers = useAppSelector((state) => (state.chat.onlineUsers))
-    const { data: users, isLoading } = useGetUsersQuery()
+    const unReadMessages = useAppSelector((state) => (state.chat.unReadMessages))
+
+    const { data: users, isLoading: messagesIsLoading } = useGetUsersQuery()
 
     const displayUsers = users ?? exampleUsers
+    // local state
+    const [isTyping, setIsTyping] = useState(false)
     const [search, setSearch] = useState<string>('')
     const [input, setInput] = useState<string>('')
     const fileInputRef = useRef<HTMLInputElement>(null)
+    const logOutRef = useRef<HTMLDivElement>(null)
 
     const [logout] = useLogoutMutation()
     
 
     const [sendMessage] = useSendMessageMutation()
-    const { data: messages } = useGetMessagesQuery(selectedUser?._id ?? '', { skip: !selectedUser})
+    const { data: messages, isLoading } = useGetMessagesQuery(selectedUser?._id ?? '', { skip: !selectedUser})
+    
 
     const messageEndRef = useRef<HTMLDivElement>(null)
+
+    const typingTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setInput(e.target.value)
+        socket.emit('typing', { receiverId: selectedUser?._id })
+        if (typingTimeout.current) clearTimeout(typingTimeout.current)
+        typingTimeout.current = setTimeout(() => {
+            socket.emit('stopTyping', { receiverId: selectedUser?._id })
+        }, 1000)
+    }
 
     useEffect(() => {
         messageEndRef.current?.scrollIntoView({ behavior: 'smooth'})
@@ -107,12 +124,39 @@ function ChatPage() {
                     selectedUser._id,
                     (draft) => { draft.push(message) }
                 ))
+            } 
+            else {
+                dispatch(incrementUnread(message.senderId))
             }
         }
         socket.on('newMessage', handleNewMessage)
 
         return () => { socket.off('newMessage', handleNewMessage) }
     }, [selectedUser?._id])
+
+    // socket typing lestener
+    useEffect(() => {
+        const handleTyping = () => setIsTyping(true)
+        const handleStopTyping = () => setIsTyping(false)
+
+        socket.on('typing', handleTyping)
+        socket.on('stopTyping', handleStopTyping)
+
+        return () => {
+            socket.off('typing', handleTyping)
+            socket.off('stopTyping', handleStopTyping)
+        }
+    }, [])
+
+    useEffect(() => {
+        const handleClickOutside = (e: MouseEvent) => {
+            if (logOutRef.current && !logOutRef.current.contains(e.target as Node)) {
+                setHiddenLogOut(true)
+            }
+        }
+        document.addEventListener('mousedown', handleClickOutside)
+        return () => document.removeEventListener('mousedown', handleClickOutside)
+    }, [])
 
     return (
         <div className='flex items-center justify-center h-screen w-screen px-4 bg-linear-to-br from-bg to-bg2'>
@@ -129,13 +173,14 @@ function ChatPage() {
                             <span className="text-primary-text">Chat</span>
                         </h1>
 
+                        {/* Current User */}
                         <div className='flex items-center mb-4 font-text-rubik '>
                             <h2>Connected As : </h2>
                             <h2 className='font-semibold pl-4 pr-2'>{authUser?.fullName}</h2>
                             <div className='w-2.5 h-2.5 bg-green-700 rounded-md' />
-                            <div className="ml-auto relative">
+                            <div className="ml-auto relative" ref={logOutRef}>
                                 <LogOut
-                                    size={19}
+                                    size={19}   
                                     className="hover:cursor-pointer text-primary-text/70 hover:text-primary-text"
                                     onClick={() => setHiddenLogOut(prev => !prev)}
                                 />
@@ -183,8 +228,15 @@ function ChatPage() {
                                 </div>
                                 <h2 className='font-semibold'>{user?.fullName}</h2>
                                 {onlineUsers?.includes(user._id) && <div className="w-2.5 h-2.5 bg-green-700 rounded-md" />}
-                                <MoreHorizontal size={20} className='hover:cursor-pointer text-primary-text/70 hover:text-primary-text ml-auto' />
+                                {unReadMessages[user._id] > 0 && (
+                                    <div className='bg-button-background text-white text-xs rounded-full w-5 h-5 flex items-center justify-center ml-auto mr-0'>
+                                        {unReadMessages[user._id]}
+                                    </div>
+                                )}
+                                <MoreHorizontal size={20} className={`hover:cursor-pointer text-primary-text/70 hover:text-primary-text ${unReadMessages[user._id] ? '' : 'ml-auto'}`} />
+                                
                             </div>
+                            
                         ))}
                     </div>
                 </div>
@@ -194,6 +246,13 @@ function ChatPage() {
 
                 {/* MAIN CHAT */}
                 <div className='w-full flex flex-col px-1 space-y-0.5 '>
+                    
+                    {!selectedUser && (
+                        <div className='flex flex-col items-center justify-center w-full h-full space-y-3 text-dark-body-text/60'>
+                            <MessageCircle size={48} strokeWidth={1} />
+                            <p className='text-lg select-none'>Select a conversation to start chatting</p>
+                        </div>
+                    )}
 
                     {/* selected user section */}
                     {selectedUser && (
@@ -202,6 +261,9 @@ function ChatPage() {
                                 <img src={selectedUser?.profilePic} className="w-13 h-13 rounded-full object-cover" alt="pic" />
                                 <div className="flex flex-col">
                                     <span className="text-md font-semibold text-primary-text">{selectedUser?.fullName}</span>
+                                    {isTyping ? 
+                                    <span className='text-xs text-dark-body-text/50 animate-pulse'>typing...</span> 
+                                    : <span className='text-xs text-dark-body-text/40'>{onlineUsers?.includes(selectedUser._id) ? 'Online' : 'Offline'}</span>}
                                 </div>
                             </div>
                             <MoreVertical size={20} className="text-dark-body-text/80 cursor-pointer hover:text-dark-body-text transition-colors" />
@@ -210,9 +272,16 @@ function ChatPage() {
 
                     {/* Messages Chat*/}
                     {selectedUser &&
-                    (<div className={`flex flex-col flex-1 overflow-y-auto px-6 py-4 space-y-2`}>
-                        {messages?.map(msg => (
-                            <div key={msg._id} className={`flex flex-col max-w-[60%] ${msg.senderId === authUser?._id ? 'self-end items-end' : 'self-start items-start'}`}>
+                    ( messagesIsLoading ? (
+                                [...Array(4)].map((_, i) => (
+                                    <div key={i} className={`h-10 w-48 bg-card-background/30 rounded-lg animate-pulse ${i % 2 === 0 ? 'self-start' : 'self-end'}`} />
+                                ))
+                        )
+                    : (
+                    <div className={`flex flex-col flex-1 overflow-y-auto px-6 py-4 space-y-2`}>
+                        {
+                        messages?.map(msg => (
+                            <div key={msg._id} className={`group relative flex flex-col max-w-[60%] ${msg.senderId === authUser?._id ? 'self-end items-end' : 'self-start items-start'}`}>
                                 { msg.text ? (<div className={`${msg.text ? 'px-4 py-2 ': ' '} rounded-lg text-lg text-white ${
                                     msg.senderId === authUser?._id
                                         ? 'bg-button-background rounded-br-sm'
@@ -220,12 +289,13 @@ function ChatPage() {
                                 }`}>
                                     {msg.text}
                                 </div>) : (<img src={msg.image} alt='sent-img' className='w-100 h-auto rounded-lg' />)}
-                                <span className="text-[0.65rem] text-dark-body-text/80 mt-1 px-1">{msg?.createdAt && dateFormatter(msg.createdAt)}</span>
+                                <span className="opacity-0 group-hover:opacity-100 transition-opacity text-[0.65rem] text-dark-body-text/80 mt-1 px-1">{msg?.createdAt && dateFormatter(msg.createdAt)}</span>
                             </div>
                         ))}
                         <div ref={messageEndRef}/>
-                    </div>)
-                    }
+                    </div>
+                    )
+                    )}
 
                     {/* input bar */}
                     {selectedUser && 
@@ -245,7 +315,7 @@ function ChatPage() {
                         />
                         <input
                             value={input}
-                            onChange={e => setInput(e.target.value)}
+                            onChange={handleInputChange}
                             onKeyDown={handleKeyDown}
                             placeholder="Type a message..."
                             className="flex-1 bg-input-field-background/60 border border-card-background/30 rounded-lg px-4 py-2.5 text-lg text-dark-body-text placeholder:text-dark-body-text/40 outline-none h-full"

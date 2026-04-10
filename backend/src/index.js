@@ -30,10 +30,21 @@ io.on('connection', (socket) => {
     if(userId) userSocketMap[userId] = socket.id;
 
     io.emit('getOnlineUsers', Object.keys(userSocketMap))
+    
+    socket.on('typing', ({ receiverId }) => {
+        const receiverSocketId = userSocketMap[receiverId]
+        if (receiverSocketId) io.to(receiverSocketId).emit('typing', userId)
+    })
+
+    socket.on('stopTyping', ({ receiverId }) => {
+        const receiverSocketId = userSocketMap[receiverId]
+        if (receiverSocketId) io.to(receiverSocketId).emit('stopTyping')
+    })
+
     socket.on('disconnect', () => {
         delete userSocketMap[userId]
         io.emit('getOnlineUsers', Object.keys(userSocketMap))
-    })
+    })  
 })
 
 
