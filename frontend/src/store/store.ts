@@ -1,4 +1,4 @@
-import { configureStore } from "@reduxjs/toolkit";
+    import { configureStore } from "@reduxjs/toolkit";
 
 import { authApi } from './api/authApi'
 import { userApi } from './api/userApi'
