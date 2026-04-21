@@ -4,7 +4,7 @@ import type { User } from '../../../types/types'
 export const userApi = createApi({
   reducerPath: 'userApi',
   baseQuery: fetchBaseQuery({
-    baseUrl: '/api/user',
+    baseUrl: 'http://localhost:3001/api/user',
     credentials: 'include'
   }),
   endpoints: (builder) => ({

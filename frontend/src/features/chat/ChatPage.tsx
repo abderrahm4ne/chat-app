@@ -64,6 +64,7 @@ function ChatPage() {
     const messageEndRef = useRef<HTMLDivElement>(null)
 
     const typingTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
+
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setInput(e.target.value)
         socket.emit('typing', { receiverId: selectedUser?._id })

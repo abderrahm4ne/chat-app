@@ -66,8 +66,8 @@ function SetupProfilePage() {
     }
 
     return (
-        <div className="flex items-center justify-center h-screen w-screen px-4">
-            <div className="bg-linear-to-b from-primary to-secondary rounded-xl shadow-lg shadow-gray-400/50 flex flex-row h-[80%] w-[65%] overflow-hidden">
+        <div className="flex items-center bg-linear-to-br from-bg to-bg2 justify-center h-screen w-screen px-4">
+            <div className="bg-linear-to-b from-primary to-secondary rounded-xl shadow-lg shadow-shadow flex flex-row h-[80%] w-[65%] overflow-hidden">
 
                 {/* left side */}
                 <div className="flex flex-col w-[42%] p-10 justify-center mb-20">

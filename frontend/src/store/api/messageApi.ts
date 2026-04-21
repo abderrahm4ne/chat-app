@@ -4,7 +4,7 @@ import type { Message } from '../../../types/types.ts'
 export const messageApi = createApi({
   reducerPath: 'messageApi',
   baseQuery: fetchBaseQuery({
-    baseUrl: '/api/messages',
+    baseUrl: 'http://localhost:3001/api/messages',
     credentials: 'include'
   }),
   tagTypes: ['Messages'],

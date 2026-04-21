@@ -4,7 +4,7 @@ import type { User, AuthResponse} from "../../../types/types";
 
 export const authApi = createApi({
     reducerPath: "authApi",
-    baseQuery: fetchBaseQuery({baseUrl: '/api/auth', credentials: 'include'}),
+    baseQuery: fetchBaseQuery({baseUrl: 'http://localhost:3001/api/auth', credentials: 'include'}),
     endpoints: builder => ({
         
         register: builder.mutation<AuthResponse, { fullName: string; email: string; password: string }>(

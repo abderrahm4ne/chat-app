@@ -51,6 +51,36 @@ Oswald / Iosevka Charon Mono / Rubik / Syne
 
     --color-bg: #280905;
     --color-bg2: #740A03;
+    --color-shadow: rgba(169, 167, 167, 0.4);
+}
+
+.dark{
+    --color-primary: #091413;
+    --color-secondary: #050e0d;
+    --color-sidebar-background: #B0E4CC;
+    --color-input-field-background: #091413;
+    --color-card-background: #3C3D37;
+    --color-chat-background: #408A71;
+    --color-border-color: #ffffff;
+
+    --color-button-background: #E8432D;
+    --color-button-hover-background: #E31D02;
+
+    --color-green: #25c02a;
+
+    --color-primary-text: #EBD5AB;
+    --color-secondary-text: rgb(117, 114, 114);
+    --color-dark-body-text: #d2bcbc;
+
+    --font-text-landing-title: 'Syne', sans-serif;
+    --font-text-rubik : 'Rubik', monospace;
+    --font-text-card: 'Oswald', 'Rubik', sans-serif;
+    --font-text-description: 'Archivo Black', 'Rubik', sans-serif;
+
+    --color-bg: black;
+    --color-bg2: #190200;
+
+    --color-shadow: black;
 }
 
 .animate-spin {

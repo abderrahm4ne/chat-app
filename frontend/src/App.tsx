@@ -8,6 +8,7 @@ import SetupProfilePage from "./features/setup/SetupProfilePage"
 import ChatPage from "./features/chat/ChatPage"
 
 import { Toaster } from "react-hot-toast"
+import { Sun, Moon } from 'lucide-react'
 
 import { store } from "./store/store"
 import { Provider } from "react-redux"
@@ -16,51 +17,36 @@ import { useAppDispatch, useAppSelector } from "./store/hooks/hooks"
 import { useGetMeQuery } from "./store/api/authApi"
 import { socket } from "./store/socket"
 import { setOnlineUsers } from "./store/slices/chatSlice"
+import { ThemeProvider } from "./context/ThemeContext"
+import { useTheme } from "./components/hooks/useTheme"
 
-
-  const router = createBrowserRouter(
-    createRoutesFromElements(
-      <>
-        <Route path="" element={
-            <LandingPage />
-          }/>
-
-        <Route path="register" element={
-            <RegisterPage />
-        }/>
-
-        <Route path="login" element={
-            <LoginPage />
-          }/>
-        
-        <Route path="setup-profile" element={<SetupProfilePage />} />
-
-        <Route path="chat" element={<ChatPage />} />
-
-
-        <Route path="*" element={<div>404 Not Found</div>} />
-
-      </>
-    )
+const router = createBrowserRouter(
+  createRoutesFromElements(
+    <>
+      <Route path="" element={<LandingPage />} />
+      <Route path="register" element={<RegisterPage />} />
+      <Route path="login" element={<LoginPage />} />
+      <Route path="setup-profile" element={<SetupProfilePage />} />
+      <Route path="chat" element={<ChatPage />} />
+      <Route path="*" element={<div>404 Not Found</div>} />
+    </>
   )
+)
 
 function AppProvider() {
   useGetMeQuery();
   const dispatch = useAppDispatch();
-  const authUser = useAppSelector((state) => (state.auth.user))
+  const authUser = useAppSelector((state) => state.auth.user)
+  const { theme, toggleTheme } = useTheme();
 
   useEffect(() => {
-    if (authUser) {
-      if (authUser?._id) {
-        socket.io.opts.query = {
-          userId: authUser._id,
-        }
-        socket.connect()
-        
-        socket.on("getOnlineUsers", users => {
-          dispatch(setOnlineUsers(users))
-        })
-      }
+    if (authUser?._id) {
+      socket.io.opts.query = { userId: authUser._id }
+      socket.connect()
+
+      socket.on("getOnlineUsers", (users) => {
+        dispatch(setOnlineUsers(users))
+      })
 
       return () => {
         socket.off("getOnlineUsers")
@@ -68,19 +54,29 @@ function AppProvider() {
       }
     }
   }, [authUser?._id])
-  return <RouterProvider router={router} />
-}
-
-function App() {
 
   return (
     <>
-      <Toaster />
+      <div>
+        {theme === 'dark'
+          ? <Moon onClick={toggleTheme} className="cursor-pointer" />
+          : <Sun onClick={toggleTheme} className="cursor-pointer" />
+        }
+      </div>
+      <RouterProvider router={router} />
+    </>
+  )
+}
+
+function App() {
+  return (
+    <ThemeProvider>
       <Provider store={store}>
+        <Toaster />
         <AppProvider />
       </Provider>
-    </>
-)
+    </ThemeProvider>
+  )
 }
 
 export default App
