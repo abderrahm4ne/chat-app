@@ -5,6 +5,9 @@ import type { AuthResponse } from '../../../types/types'
 import { setSelectedUser } from '../../store/slices/chatSlice'
 import { LogOut } from 'lucide-react';
 import { useNavigate } from 'react-router-dom'
+import { useTheme } from '../../components/hooks/useTheme.tsx'
+import { Moon, Sun } from 'lucide-react'
+
 
 import toast from 'react-hot-toast'
 const toastStyle = { className: 'text-xl font-semibold' }
@@ -36,6 +39,7 @@ const dateFormatter = (date: string) => {
 
 function ChatPage() {
     const navigate = useNavigate()
+    const { theme, toggleTheme } = useTheme()
     const [hiddenLogOut, setHiddenLogOut] = useState(true)
     const dispatch = useAppDispatch()
 
@@ -179,7 +183,10 @@ function ChatPage() {
                             <h2>Connected As : </h2>
                             <h2 className='font-semibold pl-4 pr-2'>{authUser?.fullName}</h2>
                             <div className='w-2.5 h-2.5 bg-green-700 rounded-md' />
-                            <div className="ml-auto relative" ref={logOutRef}>
+                            <div className='ml-auto px-3'>
+                                {theme === 'dark' ? <Moon size={19} onClick={toggleTheme} className='cursor-pointer text-primary-text/70 hover:text-primary-text'/> : <Sun size={19} onClick={toggleTheme} className='cursor-pointer'/>}
+                            </div>
+                            <div className="relative" ref={logOutRef}>
                                 <LogOut
                                     size={19}   
                                     className="hover:cursor-pointer text-primary-text/70 hover:text-primary-text"
@@ -267,6 +274,7 @@ function ChatPage() {
                                     : <span className='text-xs text-dark-body-text/40'>{onlineUsers?.includes(selectedUser._id) ? 'Online' : 'Offline'}</span>}
                                 </div>
                             </div>
+                            
                             <MoreVertical size={20} className="text-dark-body-text/80 cursor-pointer hover:text-dark-body-text transition-colors" />
                         </div>
                     )}

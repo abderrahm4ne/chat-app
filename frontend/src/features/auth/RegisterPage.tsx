@@ -6,6 +6,8 @@ import google from '../../assets/googl.png'
 import facebook from '../../assets/facebook.png'
 import { useRegisterMutation } from '../../store/api/authApi'
 import registerMiddleware from '../../components/middleware/registerMiddleware'
+import { Moon, Sun } from 'lucide-react'
+import { useTheme } from '../../components/hooks/useTheme'
 
 import toast from 'react-hot-toast'
 const toastStyle = {
@@ -23,6 +25,7 @@ function RegisterPage() {
     const [register, { isLoading }] = useRegisterMutation()
     const [error, setError] = useState<string | null>(null)
     const navigate = useNavigate()
+    const { theme, toggleTheme } = useTheme()
 
     const set = (key: keyof FormState) => (v: string) => {
         setFormData(f => ({ ...f, [key]: v }))
@@ -43,13 +46,13 @@ function RegisterPage() {
 
     return (
         <div className="flex items-center justify-center h-screen w-screen px-4 bg-linear-to-br from-bg to-bg2">
-            <div className="bg-linear-to-b from-primary to-secondary rounded-xl shadow-lg shadow-gray-400/50 flex flex-row h-[85%] w-[65%] overflow-hidden">
+            <div className="bg-linear-to-b from-primary to-secondary rounded-xl shadow-lg shadow-shadow/50 flex flex-row h-[85%] w-[65%] overflow-hidden">
 
                 {/* left side */}
                 <div className="flex flex-col w-[42%] p-10 justify-center mb-20">
 
                     {/* title */}
-                    <div className='mb-6'>
+                    <div className='mb-6 mt-[45%]'>
                         <h1 className="text-4xl font-text-landing-title">
                             <span className="text-dark-body-text">Qwik</span>
                             <span className="text-primary-text">Chat</span>
@@ -57,7 +60,7 @@ function RegisterPage() {
                     </div>
 
                     {/* center text */}
-                    <div className="flex flex-col space-y-3">
+                    <div className="flex flex-col space-y-3 ">
                         <h2 className="text-4xl font-text-landing-title text-primary-text leading-tight">
                             Start chatting today,
                         </h2>
@@ -67,7 +70,9 @@ function RegisterPage() {
 
                     </div>
 
-
+                    <div className='mt-auto'>
+                        {theme === 'dark' ? <Moon color='white' size={30} onClick={toggleTheme} className='cursor-pointer'/> : <Sun size={30} onClick={toggleTheme} className='cursor-pointer'/>}
+                    </div>
                 </div>
 
                 {/* DIVIDER */}

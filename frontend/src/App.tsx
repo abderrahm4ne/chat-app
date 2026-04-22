@@ -8,7 +8,6 @@ import SetupProfilePage from "./features/setup/SetupProfilePage"
 import ChatPage from "./features/chat/ChatPage"
 
 import { Toaster } from "react-hot-toast"
-import { Sun, Moon } from 'lucide-react'
 
 import { store } from "./store/store"
 import { Provider } from "react-redux"
@@ -18,7 +17,6 @@ import { useGetMeQuery } from "./store/api/authApi"
 import { socket } from "./store/socket"
 import { setOnlineUsers } from "./store/slices/chatSlice"
 import { ThemeProvider } from "./context/ThemeContext"
-import { useTheme } from "./components/hooks/useTheme"
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -37,7 +35,6 @@ function AppProvider() {
   useGetMeQuery();
   const dispatch = useAppDispatch();
   const authUser = useAppSelector((state) => state.auth.user)
-  const { theme, toggleTheme } = useTheme();
 
   useEffect(() => {
     if (authUser?._id) {
@@ -57,12 +54,6 @@ function AppProvider() {
 
   return (
     <>
-      <div>
-        {theme === 'dark'
-          ? <Moon onClick={toggleTheme} className="cursor-pointer" />
-          : <Sun onClick={toggleTheme} className="cursor-pointer" />
-        }
-      </div>
       <RouterProvider router={router} />
     </>
   )

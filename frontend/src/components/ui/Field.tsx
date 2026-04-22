@@ -30,7 +30,7 @@ function InputField({ name, type = "text", placeholder, value, onChange, disable
           className={[
             "w-full border-0 border-b text-primary-text",
             "py-3 transition-all duration-200 outline-none",
-            "focus:border-button-background focus:ring-0 ",
+            "focus:border-button-background focus:ring-0 placeholder:text-dark-body-text",
             isPassword ? "pr-11" : "",  
           ].join(" ")}
         />

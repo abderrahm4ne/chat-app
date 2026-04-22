@@ -2,16 +2,18 @@ import { useNavigate } from 'react-router-dom'
 import landingData from '../../components/data/landingData';
 import type { Message } from '../../components/data/landingData';
 import { Upload, Send } from 'lucide-react';
-
+import { useTheme } from '../../components/hooks/useTheme';
+import { Moon, Sun } from 'lucide-react'
 
 function LandingPage() {
     const navigate = useNavigate();
+    const { theme, toggleTheme } = useTheme()
 
     return (
     <div className="flex items-center justify-center h-screen w-screen px-4 bg-linear-to-br from-bg to-bg2">
 
         {/* left side */}
-        <div className='bg-linear-to-b from-primary to-secondary rounded-xl p-10 shadow-lg shadow-gray-400/50 flex flex-col items-start h-[80%] w-auto'>
+        <div className='bg-linear-to-b from-primary to-secondary rounded-xl p-10 shadow-lg shadow-shadow/50 flex flex-col items-start h-[80%] w-auto'>
 
             {/* title + BETA tag */}
             <div className='mt-20'>
@@ -53,7 +55,7 @@ function LandingPage() {
             <div className='w-full border border-sidebar-background mb-6 mt-auto'/>
 
             {/* MORE ABOUT */}
-            <div className='flex flex-row space-x-10 items-center font-text-card px-2 w-full'>
+            <div className='flex flex-row space-x-10 items-center font-text-card px-2 w-full text-primary-text'>
                 <div className='flex flex-col space-y-1 items-center'>
                     <h2 className='text-2xl'>12ms</h2>
                     <p className='text-[0.8rem]'>avg. latency</p>
@@ -66,17 +68,20 @@ function LandingPage() {
                     <h2 className='text-2xl'>99.9</h2>
                     <p className='text-[0.8rem]'>up time</p>
                 </div>
+                <div className='ml-auto'>
+                    {theme === 'dark' ? <Moon color='white' size={30} onClick={toggleTheme} className='cursor-pointer text-white' /> : <Sun size={30} onClick={toggleTheme} className='cursor-pointer' />}
+                </div>
             </div>
         </div>
 
         { /* right side */}
-        <div className='h-[80%] flex flex-col rounded-2xl px-6 py-4 ml-10 w-[21%] items-center bg-primary shadow-lg shadow-gray-400/90 -skew-z-1 '>
+        <div className='h-[80%] flex flex-col rounded-2xl px-6 py-4 ml-10 w-[21%] items-center bg-primary shadow-lg shadow-shadow/90 -skew-z-1 '>
             
             { /* USER */}
             <div className='flex flex-row space-x-3 mb-4 self-start px-4 '>
                 <div className='bg-linear-to-br from-pink-500 to-purple-400 h-12 w-12 rounded-full flex items-center justify-center text-white font-bold'> <h1>Y</h1></div>
                 <div className='flex flex-col'>
-                    <h4 className='font-semibold'>Ysf</h4>
+                    <h4 className='font-semibold text-primary-text'>Ysf</h4>
                     <h4 className='text-green'>Online</h4>
                 </div>
             </div>
@@ -112,9 +117,9 @@ function LandingPage() {
                     className='bg-input-field-background text-primary-text placeholder:text-secondary-text outline-none px-3.5 py-2.5 border border-card-background rounded-lg text-sm w-full'
                 />
                 <div 
-                    className='bg-secondary text-black px-3.5 py-2 rounded-md hover:cursor-pointer border   border-card-background'><Upload /></div>
+                    className='bg-input-field-background text-primary-text px-3.5 py-2 rounded-md hover:cursor-pointer border   border-card-background'><Upload /></div>
                 <div 
-                    className='bg-secondary text-black px-3.5 py-2 rounded-md hover:cursor-pointer border border-card-background'>
+                    className='bg-input-field-background text-primary-text px-3.5 py-2 rounded-md hover:cursor-pointer border border-card-background'>
                         <Send />
                 </div>
 
