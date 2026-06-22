@@ -17,7 +17,7 @@ const PORT = process.env.PORT
 const app = express();
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
-    cors: { origin: 'http://localhost:5173', credentials: true }
+    cors: { origin: process.env.frontend_url, credentials: true }
 })
 
 const userSocketMap = {};
@@ -51,7 +51,7 @@ io.on('connection', (socket) => {
 app.use(express.json())
 app.use(cookieParser())
 app.use(cors({
-    origin:'http://localhost:5173',
+    origin: process.env.frontend_url,
     credentials: true
 }))
 
