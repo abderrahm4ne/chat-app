@@ -54,7 +54,7 @@ function LoginPage() {
                     {/* title */}
                     <div className='mb-6'>
                         <h1 className="text-4xl font-text-landing-title">
-                            <span className="text-dark-body-text">Qwik</span>
+                            <span className="text-orange-header ">Qwik</span>
                             <span className="text-primary-text">Chat</span>
                         </h1>
                     </div>

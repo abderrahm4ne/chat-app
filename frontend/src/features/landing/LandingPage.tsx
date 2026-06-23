@@ -11,10 +11,10 @@ function LandingPage() {
 
     return (
     <div className="flex items-center justify-center min-h-screen w-screen px-12 bg-linear-to-br from-bg to-bg2">
-        <div className="flex flex-row items-stretch justify-center w-full max-w-6xl h-[600px] gap-6">
+        <div className="flex md:flex-row flex-col items-center justify-center md:w-full md:max-w-6xl w-4xl md:h-150 gap-6">
 
             {/* left side */}
-            <div className='bg-linear-to-b from-primary to-secondary rounded-2xl shadow-xl shadow-shadow/30 flex flex-col items-start p-8 gap-6 flex-1 h-full'>
+            <div className='bg-linear-to-b from-primary to-secondary rounded-2xl shadow-xl shadow-shadow/30 flex flex-col items-start py-8 px-12 gap-6 flex-1 h-full'>
 
                 {/* title + BETA tag */}
                 <div className='flex flex-col gap-4'>
@@ -75,7 +75,7 @@ function LandingPage() {
                             </div>
                         </div>
                         
-                        <div className='p-2.5 bg-white/5 rounded-xl hover:bg-white/10 transition-colors cursor-pointer' onClick={toggleTheme}>
+                        <div className='p-2.5 ml-10 bg-white/5 rounded-xl hover:bg-white/10 transition-colors cursor-pointer' onClick={toggleTheme}>
                             {theme === 'dark' ? 
                                 <Moon color='white' size={20} /> : 
                                 <Sun size={20} />
@@ -86,7 +86,7 @@ function LandingPage() {
             </div>
 
             { /* right side */}
-            <div className='flex flex-col rounded-2xl w-[340px] bg-primary shadow-xl shadow-shadow/30 p-6 gap-5 relative overflow-hidden h-full'>
+            <div className='flex flex-col rounded-2xl w-3/4 bg-primary shadow-xl shadow-shadow/30 p-6 gap-5 relative overflow-hidden h-full'>
                 
                 { /* USER */}
                 <div className='flex flex-row items-center gap-3'>
@@ -108,7 +108,7 @@ function LandingPage() {
                 <div className='w-full border-b border-card-background/10' />
 
                 { /* CHAT MESSAGES */}
-                <div className='flex flex-col w-full gap-3 overflow-y-auto flex-1 pr-1 custom-scrollbar'>
+                <div className='flex flex-col sm:w-full gap-3 overflow-y-auto flex-1 pr-1 custom-scrollbar'>
                     {landingData.map((msg: Message) => (
                         <div
                             key={msg.id}
