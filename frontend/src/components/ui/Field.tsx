@@ -28,7 +28,7 @@ function InputField({ name, type = "text", placeholder, value, onChange, disable
           disabled={disabled}
           onChange={e => onChange(e.target.value)}
           className={[
-            "w-full border-0 border-b text-primary-text",
+            "w-full border-0 border-b text-primary-text lg:text-md text-sm",
             "py-3 transition-all duration-200 outline-none",
             "focus:border-button-background focus:ring-0 placeholder:text-dark-body-text",
             isPassword ? "pr-11" : "",  

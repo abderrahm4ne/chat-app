@@ -11,7 +11,7 @@ function LandingPage() {
 
     return (
     <div className="flex items-center justify-center min-h-screen w-screen px-12 bg-linear-to-br from-bg to-bg2">
-        <div className="flex md:flex-row flex-col items-center justify-center md:w-full md:max-w-6xl w-4xl md:h-150 gap-6">
+        <div className="flex flex-row items-center justify-center md:w-full md:max-w-6xl w-4xl md:h-150 gap-6">
 
             {/* left side */}
             <div className='bg-linear-to-b from-primary to-secondary rounded-2xl shadow-xl shadow-shadow/30 flex flex-col items-start py-8 px-12 gap-6 flex-1 h-full'>
@@ -86,7 +86,7 @@ function LandingPage() {
             </div>
 
             { /* right side */}
-            <div className='flex flex-col rounded-2xl w-3/4 bg-primary shadow-xl shadow-shadow/30 p-6 gap-5 relative overflow-hidden h-full'>
+            <div className='md:flex hidden flex-col rounded-2xl w-3/4 bg-primary shadow-xl shadow-shadow/30 p-6 gap-5 relative overflow-hidden h-full'>
                 
                 { /* USER */}
                 <div className='flex flex-row items-center gap-3'>

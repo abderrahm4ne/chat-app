@@ -45,11 +45,11 @@ function RegisterPage() {
     }
 
     return (
-        <div className="flex items-center justify-center h-screen w-screen px-4 bg-linear-to-br from-bg to-bg2">
-            <div className="bg-linear-to-b from-primary to-secondary rounded-xl shadow-lg shadow-shadow/50 flex flex-row h-[85%] w-[65%] overflow-hidden">
+        <div className="flex items-center justify-center h-screen w-screen bg-linear-to-br from-bg to-bg2">
+            <div className="bg-linear-to-b from-primary to-secondary rounded-xl shadow-lg shadow-shadow/50 flex flex-row justify-center lg:h-[85%] lg:w-[65%] w-[90%] overflow-hidden">
 
                 {/* left side */}
-                <div className="flex flex-col w-[42%] p-10 justify-center mb-20">
+                <div className="lg:flex hidden flex-col w-[42%] p-10 justify-center mb-20">
 
                     {/* title */}
                     <div className='mb-6 mt-[45%]'>
@@ -76,12 +76,12 @@ function RegisterPage() {
                 </div>
 
                 {/* DIVIDER */}
-                <div className="border border-card-background/60 h-[80%] self-center" />
+                <div className="lg:block hidden border border-card-background/60 h-[80%] self-center" />
 
                 {/* right side */}
-                <div className="flex flex-col justify-center w-[58%] px-12 py-10">
+                <div className="flex flex-col justify-center lg:px-10 lg:w-[58%] w-[75%] py-8">
 
-                    <h1 className="text-3xl font-text-landing-title text-dark-body-text mb-1">
+                    <h1 className="lg:text-3xl text-xl font-text-landing-title text-dark-body-text mb-1">
                         Create an account
                     </h1>
                     <p className="text-dark-body-text/60 text-sm mb-8">

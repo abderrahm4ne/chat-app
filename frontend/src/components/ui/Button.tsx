@@ -6,7 +6,7 @@ function SubmitButton({ loading, children, onClick }: { loading?: boolean; child
       onClick={onClick}
       disabled={loading}
       className={[
-        "w-full py-3.5 rounded-xl font-bold text-sm tracking-wide transition-all duration-200",
+        "w-full lg:py-3.5 py-2.5 rounded-xl font-semibold lg:text-sm text-[0.72rem] tracking-wide transition-all duration-200",
         "bg-button-background text-white shadow-lg shadow-shadow/25",
         "hover:bg-button-hover-background hover:shadow-shadow hover:-translate-y-0.5 hover:cursor-pointer",
         "active:translate-y-0 active:shadow-none",
