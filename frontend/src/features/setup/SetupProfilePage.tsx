@@ -67,10 +67,10 @@ function SetupProfilePage() {
 
     return (
         <div className="flex items-center bg-linear-to-br from-bg to-bg2 justify-center h-screen w-screen px-4">
-            <div className="bg-linear-to-b from-primary to-secondary rounded-xl shadow-lg shadow-shadow flex flex-row h-[80%] w-[65%] overflow-hidden">
+            <div className="bg-linear-to-b from-primary to-secondary rounded-xl shadow-lg shadow-shadow flex flex-row items-center justify-center lg:h-[80%] lg:w-[65%] overflow-hidden">
 
                 {/* left side */}
-                <div className="flex flex-col w-[42%] p-10 justify-center mb-20">
+                <div className="lg:flex hidden flex-col w-[42%] p-10 justify-center mb-20">
 
                     {/* title */}
                     <div className='mb-6'>
@@ -94,15 +94,15 @@ function SetupProfilePage() {
                 </div>
 
                 {/* DIVIDER */}
-                <div className="border border-card-background/60 h-[80%] self-center" />
+                <div className="lg:border border-card-background/60 h-[80%] self-center" />
 
                 {/* right side */}
-                <div className="flex flex-col justify-center w-[58%] px-12 py-10">
+                <div className="flex flex-col items-center justify-center lg:w-[58%] w-full px-12 py-10 ">
 
-                    <h1 className="text-3xl font-text-landing-title text-dark-body-text mb-1">
+                    <h1 className="lg:text-3xl text-4xl  font-text-landing-title text-dark-body-text text-nowrap mb-1">
                         Setup your profile
                     </h1>
-                    <p className="text-dark-body-text text-sm mb-10">
+                    <p className="text-dark-body-text text-sm mb-10 text-nowrap">
                         Complete this step so your friends find you.
                     </p>
 
@@ -111,7 +111,7 @@ function SetupProfilePage() {
                     <div className="flex flex-col items-center mb-10">
                         <div
                             onClick={() => fileInputRef.current?.click()}
-                            className="relative w-24 h-24 rounded-full bg-card-background/40 border-2 border-dashed border-card-background hover:border-primary-text hover:cursor-pointer transition-all duration-200 flex items-center justify-center overflow-hidden group"
+                            className="relative w-30 h-30 rounded-full bg-card-background/40 border-2 border-dashed border-card-background hover:border-primary-text hover:cursor-pointer transition-all duration-200 flex items-center justify-center overflow-hidden group"
                         >
                             {preview ? (
                                 <img src={preview} alt="avatar" className="w-full h-full object-cover" />
@@ -127,7 +127,7 @@ function SetupProfilePage() {
                             )}
                         </div>
 
-                        <p className="text-dark-body-text text-sm mt-3">
+                        <p className="text-dark-body-text text-sm mt-3 text-nowrap ">
                             Click to upload profile picture
                         </p>
 
@@ -143,7 +143,7 @@ function SetupProfilePage() {
                     
 
                     {/* disabled fields */}
-                    <div className="flex flex-col space-y-4 mb-8">
+                    <div className="flex flex-col space-y-4 mb-8 w-full">
                         <div className="opacity-50 cursor-not-allowed">
                             <InputField
                                 name="fullName"

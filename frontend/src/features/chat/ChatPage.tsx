@@ -1,13 +1,12 @@
 import { useState, useRef, useEffect } from 'react'
-import { Search, MoreVertical, LoaderCircle, MoreHorizontal, Upload, Send, MessageCircle } from 'lucide-react'
+import { Search, MoreVertical, LoaderCircle, Upload, Send, MessageCircle, ArrowLeft } from 'lucide-react'
 import { useGetUsersQuery } from '../../store/api/userApi'
 import type { AuthResponse } from '../../../types/types'
 import { setSelectedUser } from '../../store/slices/chatSlice'
 import { LogOut } from 'lucide-react';
 import { useNavigate } from 'react-router-dom'
 import { useTheme } from '../../components/hooks/useTheme.tsx'
-import { Moon, Sun } from 'lucide-react'
-
+import { Moon, Sun, User, Trash2, Ban, X } from 'lucide-react'
 
 import toast from 'react-hot-toast'
 const toastStyle = { className: 'text-xl font-semibold' }
@@ -21,53 +20,64 @@ import type { Message } from '../../../types/types.ts'
 import { messageApi } from '../../store/api/messageApi'
 import { incrementUnread } from '../../store/slices/chatSlice'
 
-const exampleUsers: AuthResponse[] = [
-    { _id: '1', email: 'john.doe@qwik.io', fullName: 'John Doe', profilePic: 'a'},
-    { _id: '2', email: 'jane.smith@qwik.io', fullName: 'Jane Smith', profilePic: 'a'},
-    { _id: '3', email: 'michel.jackson@qwik.io', fullName: 'Michel Jackson', profilePic: 'a'},
-]
-
 const dateFormatter = (date: string) => {
-    console.log(date)
     if(!date) return 'No Date'
     const d = new Date(date)
-    if (isNaN(d.getTime())) {
-        return 'Invalid Date'
-    }
+    if (isNaN(d.getTime())) return 'Invalid Date'
     return d.toLocaleDateString() + ' ' + d.toLocaleTimeString()
 }
+
+const menuActions = [
+    { label: 'View Profile', icon: User },
+    { label: 'Clear Chat',   icon: Trash2 },
+    { label: 'Block User',   icon: Ban },
+    { label: 'Close Chat',   icon: X },
+]
 
 function ChatPage() {
     const navigate = useNavigate()
     const { theme, toggleTheme } = useTheme()
-    const [hiddenLogOut, setHiddenLogOut] = useState(true)
     const dispatch = useAppDispatch()
 
-    const authUser = useAppSelector((state) => (state.auth.user))
-    const selectedUser = useAppSelector((state) => (state.chat.selectedUser))
-    const onlineUsers = useAppSelector((state) => (state.chat.onlineUsers))
-    const unReadMessages = useAppSelector((state) => (state.chat.unReadMessages))
+    const authUser      = useAppSelector(s => s.auth.user)
+    const selectedUser  = useAppSelector(s => s.chat.selectedUser)
+    const onlineUsers   = useAppSelector(s => s.chat.onlineUsers)
+    const unReadMessages = useAppSelector(s => s.chat.unReadMessages)
 
-    const { data: users, isLoading: messagesIsLoading } = useGetUsersQuery()
+    const { data: users, isLoading: usersIsLoading } = useGetUsersQuery()
+    const displayUsers = usersIsLoading ? [] : (users ?? [])
 
-    const displayUsers = users ?? exampleUsers
-    // local state
-    const [isTyping, setIsTyping] = useState(false)
-    const [search, setSearch] = useState<string>('')
-    const [input, setInput] = useState<string>('')
-    const fileInputRef = useRef<HTMLInputElement>(null)
-    const logOutRef = useRef<HTMLDivElement>(null)
-
-    const [logout] = useLogoutMutation()
+    const [isTyping,      setIsTyping]      = useState(false)
+    const [search,        setSearch]        = useState('')
+    const [input,         setInput]         = useState('')
+    const [hiddenLogOut,  setHiddenLogOut]  = useState(true)
+    const [showUserMenu,  setShowUserMenu]  = useState(false)
     
+    // mobile: 'sidebar' | 'chat'
+    const [mobileView,    setMobileView]    = useState<'sidebar' | 'chat'>('sidebar')
 
-    const [sendMessage] = useSendMessageMutation()
-    const { data: messages, isLoading } = useGetMessagesQuery(selectedUser?._id ?? '', { skip: !selectedUser})
-    
-
+    const fileInputRef  = useRef<HTMLInputElement>(null)
+    const logOutRef     = useRef<HTMLDivElement>(null)
+    const userMenuRef   = useRef<HTMLDivElement>(null)
     const messageEndRef = useRef<HTMLDivElement>(null)
-
     const typingTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+    // swipe state
+    const touchStartX = useRef<number | null>(null)
+
+    const [logout]      = useLogoutMutation()
+    const [sendMessage] = useSendMessageMutation()
+    const { data: messages, isLoading } = useGetMessagesQuery(
+        selectedUser?._id ?? '', { skip: !selectedUser }
+    )
+
+    useEffect(() => {
+        messageEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+    }, [messages])
+
+    const filteredUsers = displayUsers.filter(u =>
+        u.fullName.toLowerCase().includes(search.toLowerCase())
+    )
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setInput(e.target.value)
@@ -78,33 +88,21 @@ function ChatPage() {
         }, 1000)
     }
 
-    useEffect(() => {
-        messageEndRef.current?.scrollIntoView({ behavior: 'smooth'})
-    }, [messages])
-
-    const filteredUsers = displayUsers.filter(u =>
-        u.fullName.toLowerCase().includes(search.toLowerCase())
-    )
-
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if(!selectedUser) return
+        if (!selectedUser) return
         if (e.target.files && e.target.files.length === 1) {
             const reader = new FileReader()
             reader.onloadend = () => {
-                const dataUrl = reader.result as string
+                sendMessage({ receiverId: selectedUser._id, image: reader.result as string })
                 toast.success('Image selected', toastStyle)
-                sendMessage({ receiverId: selectedUser?._id, image: dataUrl })
             }
             reader.readAsDataURL(e.target.files[0])
         }
     }
 
     const handleSendMessage = () => {
-        if(!selectedUser) return
-        if (!input.trim()) {
-            toast.error('Message cannot be empty')
-            return
-        }
+        if (!selectedUser) return
+        if (!input.trim()) { toast.error('Message cannot be empty'); return }
         sendMessage({ receiverId: selectedUser._id, text: input.trim() })
         setInput('')
     }
@@ -119,224 +117,295 @@ function ChatPage() {
         if (e.key === 'Enter') handleSendMessage()
     }
 
+    const handleSelectUser = (user: AuthResponse) => {
+        dispatch(setSelectedUser(user))
+        setMobileView('chat')
+    }
+
+    const handleMenuAction = (label: string) => {
+        if (label === 'Close Chat') {
+            dispatch(setSelectedUser(null))
+            setMobileView('sidebar')
+        }
+        setShowUserMenu(false)
+    }
+
+    // swipe right → back to sidebar
+    const handleTouchStart = (e: React.TouchEvent) => {
+        touchStartX.current = e.touches[0].clientX
+    }
+    const handleTouchEnd = (e: React.TouchEvent) => {
+        if (touchStartX.current === null) return
+        const diff = e.changedTouches[0].clientX - touchStartX.current
+        if (diff > 60) setMobileView('sidebar')
+        touchStartX.current = null
+    }
+
     useEffect(() => {
         if (!selectedUser) return
-
         const handleNewMessage = (message: Message) => {
             if (message.senderId === selectedUser._id) {
-                dispatch(messageApi.util.updateQueryData(
-                    'getMessages',
-                    selectedUser._id,
-                    (draft) => { draft.push(message) }
-                ))
-            } 
-            else {
+                dispatch(messageApi.util.updateQueryData('getMessages', selectedUser._id, draft => { draft.push(message) }))
+            } else {
                 dispatch(incrementUnread(message.senderId))
             }
         }
         socket.on('newMessage', handleNewMessage)
-
         return () => { socket.off('newMessage', handleNewMessage) }
     }, [selectedUser?._id])
 
-    // socket typing lestener
     useEffect(() => {
-        const handleTyping = () => setIsTyping(true)
-        const handleStopTyping = () => setIsTyping(false)
-
-        socket.on('typing', handleTyping)
-        socket.on('stopTyping', handleStopTyping)
-
-        return () => {
-            socket.off('typing', handleTyping)
-            socket.off('stopTyping', handleStopTyping)
-        }
+        const h = () => setIsTyping(true)
+        const s = () => setIsTyping(false)
+        socket.on('typing', h)
+        socket.on('stopTyping', s)
+        return () => { socket.off('typing', h); socket.off('stopTyping', s) }
     }, [])
 
     useEffect(() => {
-        const handleClickOutside = (e: MouseEvent) => {
-            if (logOutRef.current && !logOutRef.current.contains(e.target as Node)) {
-                setHiddenLogOut(true)
-            }
+        const handler = (e: MouseEvent) => {
+            if (logOutRef.current && !logOutRef.current.contains(e.target as Node)) setHiddenLogOut(true)
+            if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) setShowUserMenu(false)
         }
-        document.addEventListener('mousedown', handleClickOutside)
-        return () => document.removeEventListener('mousedown', handleClickOutside)
+        document.addEventListener('mousedown', handler)
+        return () => document.removeEventListener('mousedown', handler)
     }, [])
 
-    return (
-        <div className='flex items-center justify-center h-screen w-screen px-4 bg-linear-to-br from-bg to-bg2'>
-            <div className="flex w-[90%] h-[90%] bg-secondary overflow-hidden rounded-xl shadow-lg shadow-black/50">
-
-                {/* SIDEBAR */}
-                <div className="flex flex-col w-[34%] min-w-65 bg-primary py-4 px-4">
-
-                    <div className="mb-4">
-
-                        {/* Header */}
-                        <h1 className="text-3xl font-text-landing-title mb-4 bg-card-background/50 px-3 py-1 rounded-md w-fit">
-                            <span className="text-dark-body-text">Qwik</span>
-                            <span className="text-primary-text">Chat</span>
-                        </h1>
-
-                        {/* Current User */}
-                        <div className='flex items-center mb-4 font-text-rubik '>
-                            <h2>Connected As : </h2>
-                            <h2 className='font-semibold pl-4 pr-2'>{authUser?.fullName}</h2>
-                            <div className='w-2.5 h-2.5 bg-green-700 rounded-md' />
-                            <div className='ml-auto px-3'>
-                                {theme === 'dark' ? <Moon size={19} onClick={toggleTheme} className='cursor-pointer text-primary-text/70 hover:text-primary-text'/> : <Sun size={19} onClick={toggleTheme} className='cursor-pointer'/>}
-                            </div>
-                            <div className="relative" ref={logOutRef}>
-                                <LogOut
-                                    size={19}   
-                                    className="hover:cursor-pointer text-primary-text/70 hover:text-primary-text"
-                                    onClick={() => setHiddenLogOut(prev => !prev)}
-                                />
-
-                                <div
-                                    className={`absolute top-6 right-0 w-20 px-2 py-1 items-center justify-center text-md bg-button-background/80 rounded-md hover:bg-button-background hover:cursor-pointer 
-                                    ${hiddenLogOut ? 'hidden' : 'flex'}`}
-                                    onClick={() => {handleLogOut()}}
-                                >
-                                    <h1>Log Out</h1>
-                                </div>
-                            </div>
+    /* ── SIDEBAR ── */
+    const Sidebar = (
+        <div className={`
+            flex flex-col bg-primary py-4 px-4
+            md:w-[34%] md:min-w-65 md:flex md:relative md:translate-x-0
+            absolute inset-0 z-10 w-full transition-transform duration-300
+            ${mobileView === 'sidebar' ? 'translate-x-0' : '-translate-x-full'}
+            md:translate-x-0
+        `}>
+            {/* Header row */}
+            <div className="flex items-center justify-between mb-3 bg-card-background/20 px-3 py-2 rounded-xl">
+                <h1 className="text-2xl font-text-landing-title">
+                    <span className="text-dark-body-text">Qwik</span>
+                    <span className="text-primary-text">Chat</span>
+                </h1>
+                <div className="flex items-center gap-3">
+                    {theme === 'dark'
+                        ? <Moon size={18} onClick={toggleTheme} className="cursor-pointer text-primary-text/70 hover:text-primary-text transition-colors" />
+                        : <Sun  size={18} onClick={toggleTheme} className="cursor-pointer text-primary-text/70 hover:text-primary-text transition-colors" />
+                    }
+                    <div className="relative" ref={logOutRef}>
+                        <LogOut
+                            size={18}
+                            className="cursor-pointer text-primary-text/70 hover:text-primary-text transition-colors"
+                            onClick={() => setHiddenLogOut(p => !p)}
+                        />
+                        <div
+                            onClick={handleLogOut}
+                            className={`absolute top-7 right-0 w-24 px-2 py-1 flex items-center justify-center text-sm
+                            bg-button-background/80 rounded-md hover:bg-button-background cursor-pointer
+                            transition-all duration-300 ease-in-out z-50
+                            ${hiddenLogOut ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
+                        >
+                            Log Out
                         </div>
-
-                        {/* Search Bar */}
-                        <div className="flex items-center gap-2 bg-card-background/20 border border-card-background/30 rounded-lg pl-2 pr-3 py-2">
-                            <Search size={19} className="text-dark-body-text shrink-0" />
-                            <input
-                                value={search}
-                                onChange={e => setSearch(e.target.value)}
-                                placeholder="Search..."
-                                className="bg-transparent text-lg text-dark-body-text placeholder:text-dark-body-text/40 outline-none w-full"
-                            />
-                        </div>
-                    </div>
-
-                    {/* Users List */}
-                    <div className="flex flex-col overflow-y-auto flex-1 space-y-1 p-1">
-                        {isLoading ? (
-                            <div className='self-center'>
-                                <LoaderCircle size={30} className='animate-spin'/>
-                            </div>
-                        ) : filteredUsers.map((user: AuthResponse) => (
-                            <div
-                                key={user._id}
-                                onClick={() => dispatch(setSelectedUser(user))}
-                                className={`flex items-center gap-3 px-3 py-3 rounded-xl cursor-pointer transition-all duration-150 text-primary-text/80 hover:text-primary-text font-text-rubik ${
-                                    selectedUser?._id === user._id
-                                        ? 'bg-button-background/20 border border-button-background/30'
-                                        : 'hover:bg-card-background/20'
-                                }`}
-                            >
-                                <div className="relative shrink-0">
-                                    <img src={user?.profilePic} className='w-11 h-11 object-cover border rounded-full' alt='img'/>
-                                </div>
-                                <h2 className='font-semibold'>{user?.fullName}</h2>
-                                {onlineUsers?.includes(user._id) && <div className="w-2.5 h-2.5 bg-green-700 rounded-md" />}
-                                {unReadMessages[user._id] > 0 && (
-                                    <div className='bg-button-background text-white text-xs rounded-full w-5 h-5 flex items-center justify-center ml-auto mr-0'>
-                                        {unReadMessages[user._id]}
-                                    </div>
-                                )}
-                                <MoreHorizontal size={20} className={`hover:cursor-pointer text-primary-text/70 hover:text-primary-text ${unReadMessages[user._id] ? '' : 'ml-auto'}`} />
-                                
-                            </div>
-                            
-                        ))}
                     </div>
                 </div>
+            </div>
 
-                {/* DIVIDER */}
-                <div className='border border-card-background h-full self-center' />
+            {/* Current user */}
+            <div className="flex items-center gap-2 mb-4 px-1">
+                <img
+                    src={authUser?.profilePic || '/default-avatar.png'}
+                    className="w-8 h-8 rounded-full object-cover border border-card-background/40"
+                    alt="you"
+                />
+                <span className="text-sm font-semibold text-primary-text truncate">{authUser?.fullName}</span>
+                <div className="w-2 h-2 bg-green-700 rounded-full shrink-0" />
+            </div>
 
-                {/* MAIN CHAT */}
-                <div className='w-full flex flex-col px-1 space-y-0.5 '>
-                    
-                    {!selectedUser && (
-                        <div className='flex flex-col items-center justify-center w-full h-full space-y-3 text-dark-body-text/60'>
-                            <MessageCircle size={48} strokeWidth={1} />
-                            <p className='text-lg select-none'>Select a conversation to start chatting</p>
+            {/* Search */}
+            <div className="flex items-center gap-2 bg-card-background/20 border border-card-background/30 rounded-lg pl-2 pr-3 py-2 mb-4">
+                <Search size={19} className="text-dark-body-text shrink-0" />
+                <input
+                    value={search}
+                    onChange={e => setSearch(e.target.value)}
+                    placeholder="Search..."
+                    className="bg-transparent text-lg text-dark-body-text placeholder:text-dark-body-text/40 outline-none w-full"
+                />
+            </div>
+
+            {/* Users list */}
+            <div className="flex flex-col overflow-y-auto flex-1 space-y-1 p-1">
+                {usersIsLoading ? (
+                    <div className="self-center"><LoaderCircle size={30} className="animate-spin" /></div>
+                ) : filteredUsers.length === 0 ? (
+                    <p className="self-center text-sm text-dark-body-text/40">No users found</p>
+                ) : filteredUsers.map((user: AuthResponse) => (
+                    <div
+                        key={user._id}
+                        onClick={() => handleSelectUser(user)}
+                        className={`flex items-center gap-3 px-3 py-3 rounded-xl cursor-pointer transition-all duration-150
+                        text-primary-text/80 hover:text-primary-text font-text-rubik ${
+                            selectedUser?._id === user._id
+                                ? 'bg-button-background/20 border border-button-background/30'
+                                : 'hover:bg-card-background/20'
+                        }`}
+                    >
+                        <div className="relative shrink-0">
+                            <img src={user.profilePic} className="w-11 h-11 object-cover border rounded-full" alt="img" />
                         </div>
-                    )}
-
-                    {/* selected user section */}
-                    {selectedUser && (
-                        <div className="flex items-center justify-between px-6 py-4 border-b border-card-background/60">
-                            <div className="flex items-center gap-3">
-                                <img src={selectedUser?.profilePic} className="w-13 h-13 rounded-full object-cover" alt="pic" />
-                                <div className="flex flex-col">
-                                    <span className="text-md font-semibold text-primary-text">{selectedUser?.fullName}</span>
-                                    {isTyping ? 
-                                    <span className='text-xs text-dark-body-text/50 animate-pulse'>typing...</span> 
-                                    : <span className='text-xs text-dark-body-text/40'>{onlineUsers?.includes(selectedUser._id) ? 'Online' : 'Offline'}</span>}
-                                </div>
+                        <span className="font-semibold truncate flex-1">{user.fullName}</span>
+                        {onlineUsers?.includes(user._id) && <div className="w-2.5 h-2.5 bg-green-700 rounded-full shrink-0" />}
+                        {unReadMessages[user._id] > 0 && (
+                            <div className="bg-button-background text-white text-xs rounded-full w-5 h-5 flex items-center justify-center shrink-0">
+                                {unReadMessages[user._id]}
                             </div>
-                            
-                            <MoreVertical size={20} className="text-dark-body-text/80 cursor-pointer hover:text-dark-body-text transition-colors" />
-                        </div>
-                    )}
-
-                    {/* Messages Chat*/}
-                    {selectedUser &&
-                    ( messagesIsLoading ? (
-                                [...Array(4)].map((_, i) => (
-                                    <div key={i} className={`h-10 w-48 bg-card-background/30 rounded-lg animate-pulse ${i % 2 === 0 ? 'self-start' : 'self-end'}`} />
-                                ))
-                        )
-                    : (
-                    <div className={`flex flex-col flex-1 overflow-y-auto px-6 py-4 space-y-2`}>
-                        {
-                        messages?.map(msg => (
-                            <div key={msg._id} className={`group relative flex flex-col max-w-[60%] ${msg.senderId === authUser?._id ? 'self-end items-end' : 'self-start items-start'}`}>
-                                { msg.text ? (<div className={`${msg.text ? 'px-4 py-2 ': ' '} rounded-lg text-lg text-white ${
-                                    msg.senderId === authUser?._id
-                                        ? 'bg-button-background rounded-br-sm'
-                                        : 'bg-card-background rounded-bl-sm'
-                                }`}>
-                                    {msg.text}
-                                </div>) : (<img src={msg.image} alt='sent-img' className='w-100 h-auto rounded-lg' />)}
-                                <span className="opacity-0 group-hover:opacity-100 transition-opacity text-[0.65rem] text-dark-body-text/80 mt-1 px-1">{msg?.createdAt && dateFormatter(msg.createdAt)}</span>
-                            </div>
-                        ))}
-                        <div ref={messageEndRef}/>
+                        )}
                     </div>
-                    )
+                ))}
+            </div>
+        </div>
+    )
+
+    /* ── CHAT PANEL ── */
+    const ChatPanel = (
+        <div
+            className={`
+                flex flex-col w-full
+                absolute inset-0 z-10 transition-transform duration-300
+                ${mobileView === 'chat' ? 'translate-x-0' : 'translate-x-full'}
+                md:relative md:translate-x-0
+            `}
+            onTouchStart={handleTouchStart}
+            onTouchEnd={handleTouchEnd}
+        >
+            {!selectedUser && (
+                <div className="flex flex-col items-center justify-center w-full h-full space-y-3 text-dark-body-text/60">
+                    <MessageCircle size={48} strokeWidth={1} />
+                    <p className="text-lg select-none">Select a conversation to start chatting</p>
+                </div>
+            )}
+
+            {selectedUser && (
+                <>
+                    {/* Chat header */}
+                    <div className="flex items-center justify-between px-4 md:px-6 py-4 border-b border-card-background/60">
+                        <div className="flex items-center gap-3">
+                            {/* Back button — mobile only */}
+                            <button
+                                className="md:hidden p-1 text-dark-body-text/70 hover:text-dark-body-text transition-colors"
+                                onClick={() => setMobileView('sidebar')}
+                            >
+                                <ArrowLeft size={20} />
+                            </button>
+                            <img src={selectedUser.profilePic} className="w-11 h-11 rounded-full object-cover" alt="pic" />
+                            <div className="flex flex-col">
+                                <span className="text-md font-semibold text-primary-text">{selectedUser.fullName}</span>
+                                {isTyping
+                                    ? <span className="text-xs text-dark-body-text/50 animate-pulse">typing...</span>
+                                    : <span className="text-xs text-dark-body-text/40">{onlineUsers?.includes(selectedUser._id) ? 'Online' : 'Offline'}</span>
+                                }
+                            </div>
+                        </div>
+
+                        {/* 3-dot menu */}
+                        <div className="relative" ref={userMenuRef}>
+                            <MoreVertical
+                                size={20}
+                                className="text-dark-body-text/80 cursor-pointer hover:text-dark-body-text transition-colors"
+                                onClick={() => setShowUserMenu(p => !p)}
+                            />
+                            <div className={`absolute top-8 right-0 w-44 bg-secondary border border-card-background/30
+                                rounded-xl shadow-lg shadow-black/20 overflow-hidden z-50
+                                transition-all duration-300 ease-in-out
+                                ${showUserMenu ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
+                            >
+                                {menuActions.map(({ label, icon: Icon }) => (
+                                    <div
+                                        key={label}
+                                        onClick={() => handleMenuAction(label)}
+                                        className="flex items-center gap-3 px-4 py-3 text-sm text-dark-body-text
+                                        hover:bg-card-background/20 cursor-pointer transition-colors"
+                                    >
+                                        <Icon size={15} className="shrink-0" />
+                                        <span>{label}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Messages */}
+                    {isLoading ? (
+                        <div className="flex flex-col flex-1 overflow-y-auto px-4 md:px-6 py-4 space-y-2">
+                            {[...Array(4)].map((_, i) => (
+                                <div key={i} className={`h-10 w-48 bg-card-background/30 rounded-lg animate-pulse ${i % 2 === 0 ? 'self-start' : 'self-end'}`} />
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="flex flex-col flex-1 overflow-y-auto px-4 md:px-6 py-4 space-y-2">
+                            {messages?.map(msg => (
+                                <div
+                                    key={msg._id}
+                                    className={`group relative flex flex-col max-w-[80%] md:max-w-[60%]
+                                    ${msg.senderId === authUser?._id ? 'self-end items-end' : 'self-start items-start'}`}
+                                >
+                                    {msg.text ? (
+                                        <div className={`px-4 py-2 rounded-lg text-base md:text-lg text-white ${
+                                            msg.senderId === authUser?._id
+                                                ? 'bg-button-background rounded-br-sm'
+                                                : 'bg-card-background rounded-bl-sm'
+                                        }`}>
+                                            {msg.text}
+                                        </div>
+                                    ) : (
+                                        <img src={msg.image} alt="sent-img" className="w-48 md:w-100 h-auto rounded-lg" />
+                                    )}
+                                    <span className="opacity-0 group-hover:opacity-100 transition-opacity text-[0.65rem] text-dark-body-text/80 mt-1 px-1">
+                                        {msg?.createdAt && dateFormatter(msg.createdAt)}
+                                    </span>
+                                </div>
+                            ))}
+                            <div ref={messageEndRef} />
+                        </div>
                     )}
 
-                    {/* input bar */}
-                    {selectedUser && 
-                    (<div className="flex items-center gap-2 px-6 py-4 border-t border-card-background/30 h-20">
+                    {/* Input bar */}
+                    <div className="flex items-center gap-2 px-4 md:px-6 py-4 border-t border-card-background/30 h-20">
                         <button
-                            className="px-5 py-3 rounded-lg bg-input-field-background/60 hover:bg-input-field-background transition-all cursor-pointer border border-card-background/30
-                            active:scale-[1.04]"
+                            className="px-3 md:px-5 py-3 rounded-lg bg-input-field-background/60 hover:bg-input-field-background
+                            transition-all cursor-pointer border border-card-background/30 active:scale-[1.04] shrink-0"
                             onClick={() => fileInputRef.current?.click()}
                         >
                             <Upload size={20} className="text-dark-body-text/60" />
                         </button>
-                        <input
-                            ref={fileInputRef}
-                            type='file'
-                            className='hidden'
-                            onChange={handleImageChange}
-                        />
+                        <input ref={fileInputRef} type="file" className="hidden" onChange={handleImageChange} />
                         <input
                             value={input}
                             onChange={handleInputChange}
                             onKeyDown={handleKeyDown}
                             placeholder="Type a message..."
-                            className="flex-1 bg-input-field-background/60 border border-card-background/30 rounded-lg px-4 py-2.5 text-lg text-dark-body-text placeholder:text-dark-body-text/40 outline-none h-full"
+                            className="flex-1 bg-input-field-background/60 border border-card-background/30 rounded-lg
+                            px-4 py-2.5 text-base md:text-lg text-dark-body-text placeholder:text-dark-body-text/40 outline-none h-full"
                         />
                         <button
                             onClick={handleSendMessage}
-                            className="py-3 px-5 rounded-lg bg-button-background hover:bg-button-hover-background transition-all cursor-pointer active:scale-[1.04] "
+                            className="py-3 px-3 md:px-5 rounded-lg bg-button-background hover:bg-button-hover-background
+                            transition-all cursor-pointer active:scale-[1.04] shrink-0"
                         >
                             <Send size={20} className="text-white" />
                         </button>
-                    </div>)}
-                </div>
+                    </div>
+                </>
+            )}
+        </div>
+    )
+
+    return (
+        <div className="flex items-center justify-center h-screen w-screen px-0 md:px-4 bg-linear-to-br from-bg to-bg2">
+            <div className="relative flex w-full md:w-[90%] h-full md:h-[90%] bg-secondary overflow-hidden md:rounded-xl shadow-lg shadow-black/50">
+                {Sidebar}
+                {/* Divider — desktop only */}
+                <div className="hidden md:block border border-card-background h-full self-center" />
+                {ChatPanel}
             </div>
         </div>
     )
